@@ -1,0 +1,35 @@
+#!/bin/bash
+# My first script
+
+#inputType="-s"
+#input="<a href='bla_bla_bla'>hi</p>"
+
+testData="/home/mbgppja7/Documents/HTML5Parser/html5libTests/data"
+
+inputType="-f"
+#input="/home/mbgppja7/Documents/HTML5Parser/html5libTests/data/adoption01/1.txt"
+
+#for filename in $(ls -R $testData/ *.txt); do
+equals=0
+different=0
+echo "Report" > results.txt
+for filename in $(find $testData -name '*.txt'); do
+	parse5output=`node parse5/parser5.js "$inputType" "$filename"`
+	jsoupOutput=`java -jar jsoup/JsoupParser.jar "$inputType" "$filename"`
+	if [ "$parse5output" == "$jsoupOutput" ]; then
+		#echo "equals"
+		equals=$(expr $equals + 1)
+	else 
+		#echo "diff"
+		different=$(expr $different + 1)
+		echo "$parse5output" >> results.txt
+		echo "$jsoupOutput" >> results.txt
+		echo "----------------------"  >> results.txt
+	fi
+done
+
+echo "equals: $equals differents $different"
+
+
+#node parse5/parser5.js "$inputType" "$input"
+#java -jar jsoup/JsoupParser.jar "$inputType" "$input"
