@@ -1,0 +1,171 @@
+<report>
+	<generalData numberOftests="8" equals="5" different="3" date="12/02/2015" />
+	<testResult>
+		<parser name="jsoup" passed="6" failed="2" />
+		<parser name="html5lib" passed="6" failed="2" />
+		<parser name="parse5" passed="5" failed="3" />
+	</testResult>
+	<test name="adoption01-1" allEqual="true" />
+    <test name="adoption01-2" allEqual="false">
+        <output>
+            <parsers>
+                <parser name="parse5"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       <svg svg>
+|         <svg tr>
+|           <svg input>]]></tree>
+        </output>
+        <output>
+            <parsers>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       <svg>
+|         <input>]]></tree>
+        </output>
+		<output>
+            <parsers>
+                <parser name="html5lib"/>
+				<parser name="another parser test"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       <svg>
+|         <TEST>
+|         <input>]]></tree>
+        </output>
+    </test>
+<test name="adoption01-3" allEqual="false">
+        <output>
+            <parsers>
+                <parser name="parse5"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <div>
+|       <a>
+|         "2"
+|       <div>
+|         <a>
+|           "3"
+|         "4"
+|       "5"]]></tree>
+        </output>
+        <output>
+            <parsers>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <div>
+|       <a>
+|         "2"
+|         <div>
+|           "3"
+|           "4"
+|         "5"]]></tree>
+        </output>
+    </test>
+<test name="adoption01-4" allEqual="false">
+        <output>
+            <parsers>
+                <parser name="parse5"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <div>
+|       <a>
+|         <b>
+|       <b>
+|         <div>
+|           <a>
+|           <div>
+|             <a>
+|             <div>
+|               <a>
+|               <div>
+|                 <a>
+|                 <div>
+|                   <a>
+|                   <div>
+|                     <a>
+|                     <div>
+|                       <a>
+|                       <div>
+|                         <a>
+|                           <div>
+|                             <div>]]></tree>
+        </output>
+        <output>
+            <parsers>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <div>
+|       <a>
+|         <b>
+|       <b>
+|         <div>
+|           <a>
+|             <div>
+|               <div>
+|                 <div>
+|                   <div>
+|                     <div>
+|                       <div>
+|                         <div>
+|                           <div>
+|                             <div>]]></tree>
+        </output>
+    </test>
+<test name="adoption01-5" allEqual="false">
+        <output>
+            <parsers>
+                <parser name="parse5"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     "AC"
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             "B"]]></tree>
+        </output>
+        <output>
+            <parsers>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <table>
+|       "A"
+|       <tbody>
+|         <tr>
+|           <td>
+|             "B"
+|           "C"]]></tree>
+        </output>
+    </test>
+	<test name="adoption01-6" allEqual="true" />
+</report>

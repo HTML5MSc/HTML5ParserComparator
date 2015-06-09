@@ -1,0 +1,22 @@
+javac -cp jsoup-1.8.2.jar Html5libSerializer.java Jsoup_parse_string.java Jsoup_parse_url.java
+
+java -cp jsoup-1.8.2.jar;. Jsoup_parse_string "<a href=\"bla_bla_bla\">hi</p>"
+java -cp jsoup-1.8.2.jar;. Jsoup_parse_url "https://www.facebook.com"
+
+
+javac -cp *.jar *.java
+//jar cfm MyJar.jar Manifest.txt MyPackage/*.class
+
+/*
+Manifest have 
+
+Main-Class: JsoupParser
+Class-Path: jsoup-1.8.2.jar
+(end with a new line)
+*/
+
+jar cfm JsoupParser.jar Manifest.txt *.class
+
+java -jar JsoupParser.jar -s "<a href=\"bla_bla_bla\">hi</p>"
+java -jar JsoupParser.jar -u "https://www.facebook.com"
+java -jar JsoupParser.jar -f ""

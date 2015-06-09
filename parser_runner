@@ -4,7 +4,7 @@
 #inputType="-s"
 #input="<a href='bla_bla_bla'>hi</p>"
 
-testData="/home/mbgppja7/Documents/HTML5Parser/html5libTests/data"
+testData="html5libTests/data/adoption01"
 
 inputType="-f"
 #input="/home/mbgppja7/Documents/HTML5Parser/html5libTests/data/adoption01/1.txt"
@@ -14,7 +14,7 @@ equals=0
 different=0
 echo "Report" > results.txt
 for filename in $(find $testData -name '*.txt'); do
-	parse5output=`node parse5/parser5.js "$inputType" "$filename"`
+	parse5output=`nodejs parse5/parser5.js "$inputType" "$filename"`
 	jsoupOutput=`java -jar jsoup/JsoupParser.jar "$inputType" "$filename"`
 	if [ "$parse5output" == "$jsoupOutput" ]; then
 		#echo "equals"
