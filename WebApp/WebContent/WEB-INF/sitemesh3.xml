@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemesh>
-    <mapping path="/*" decorator="/WEB-INF/layout.jsp"/>
+	<mapping path="/*" decorator="/WEB-INF/layout.jsp" />
+	<content-processor>
+		<tag-rule-bundle class="org.sitemesh.content.tagrules.html.Sm2TagRuleBundle" />
+	</content-processor>
 </sitemesh>

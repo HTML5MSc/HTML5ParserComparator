@@ -9,6 +9,8 @@
 </head>
 <body>
 
+
+
 	<h2>
 		<small>Report details</small>
 	</h2>
@@ -54,7 +56,7 @@
 		<h2>
 			<small>Test list</small>
 		</h2>
-		<table class="table table-striped table-bordered">
+		<table id="testCases" class="table table-striped table-bordered">
 			<thead>
 				<tr>
 					<th>Name</th>
@@ -75,15 +77,12 @@
 				</c:forEach>
 			</tbody>
 		</table>
-		<div class="container text-center">
-			<ul class="pagination ">
-				<li><a href="#">1</a></li>
-				<li><a href="#">2</a></li>
-				<li><a href="#">3</a></li>
-				<li><a href="#">4</a></li>
-				<li><a href="#">5</a></li>
-			</ul>
-		</div>
 	</c:if>
 </body>
 </html>
+
+<content tag="local_script"> <script type="text/javascript">
+	$(document).ready(function() {
+		$('#testCases').DataTable();
+	});
+</script> </content>

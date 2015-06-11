@@ -81,7 +81,7 @@ public class ReportGenerator {
 			String testDate = nodes.item(i).getAttributes()
 					.getNamedItem("date").getNodeValue();
 			String numberOfTests = nodes.item(i).getAttributes()
-					.getNamedItem("numberOftests").getNodeValue();
+					.getNamedItem("numberOfTests").getNodeValue();
 			String testsEqual = nodes.item(i).getAttributes()
 					.getNamedItem("equals").getNodeValue();
 			String testsDifferent = nodes.item(i).getAttributes()
