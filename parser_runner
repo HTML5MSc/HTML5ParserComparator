@@ -18,7 +18,7 @@ for filename in $(find $testData -name '*.txt'); do
 	echo 'Processing '$filename
 	parse5output=`node parse5/parser5.js "$inputType" "$filename"`
 	jsoupOutput=`java -jar jsoup/JsoupParser.jar "$inputType" "$filename"`
-	html5libOutput=`python html5lib/html5libRunner.py "$inputType" "$filename"`
+	html5libOutput=`python html5lib/html5libAdapter.py "$inputType" "$filename"`
 	
 	echo `java -jar Comparator.jar "$filename" "$parse5output" "parse5" "$jsoupOutput" "jsoup" "$html5libOutput" "html5lib"`
 
