@@ -12,7 +12,7 @@
 	rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="${pageContext.request.contextPath}/css/blog-home.css"
+<link href="${pageContext.request.contextPath}/css/home.css"
 	rel="stylesheet">
 
 <!-- DataTables Bootstrap CSS -->

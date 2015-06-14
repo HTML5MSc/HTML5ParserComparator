@@ -33,7 +33,10 @@
 			<tbody>
 				<tr>
 					<c:forEach var="output" items="${test.outputs}">
-						<td><pre><c:out value="${output.tree}" /></pre></td>
+						<td><pre><c:out value="${output.tree}" escapeXml="false" /></pre>
+						<c:if test="${output.editDistance > 0}">
+								<b>Edit distance:</b>&nbsp;${output.editDistance}
+						</c:if></td>
 					</c:forEach>
 				</tr>
 			</tbody>

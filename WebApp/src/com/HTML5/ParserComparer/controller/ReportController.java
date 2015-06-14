@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.HTML5.ParserComparer.model.Report;
 import com.HTML5.ParserComparer.model.ReportGenerator;
 import com.HTML5.ParserComparer.model.TestCase;
+import com.HTML5.ParserComparer.model.TestCaseGenerator;
 
 @Controller
 public class ReportController {
@@ -52,7 +53,7 @@ public class ReportController {
 	public String testDetails(Model model,
 			@RequestParam(value = "testName", required = false) String testName) {
 		// Test test = initializeTest();
-		TestCase testCase = ReportGenerator.getTest(testName);
+		TestCase testCase = TestCaseGenerator.getTestCase(testName);
 		model.addAttribute("test", testCase);
 		return "testdetails";
 	}

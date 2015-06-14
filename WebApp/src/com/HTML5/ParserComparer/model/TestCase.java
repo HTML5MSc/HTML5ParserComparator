@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class TestCase {
 	private String name;
-	private boolean allEqual;
+	private int numberOfTrees;
 	private ArrayList<TestOutput> outputs;
-	
+
 	public TestCase() {
 		super();
 	}
@@ -19,25 +19,27 @@ public class TestCase {
 		this.name = name;
 	}
 
-	public boolean isAllEqual() {
-		return allEqual;
+	public int getNumberOfTrees() {
+		return numberOfTrees;
 	}
 
-	public void setAllEqual(boolean allEqual) {
-		this.allEqual = allEqual;
+	public void setNumberOfTrees(int numberOfTrees) {
+		this.numberOfTrees = numberOfTrees;
 	}
-	
+
 	public ArrayList<TestOutput> getOutputs() {
 		return outputs;
 	}
 
 	public void setOutputs(ArrayList<TestOutput> outputs) {
 		this.outputs = outputs;
-	}	
-	
+	}
+
 	public class TestOutput {
 
-		private String tree;
+		private boolean majority;
+		private int editDistance;
+				private String tree;
 		private ArrayList<String> parsers;
 
 		public TestOutput() {
@@ -50,6 +52,22 @@ public class TestCase {
 			this.parsers = parsers;
 		}
 
+		public boolean isMajority() {
+			return majority;
+		}
+
+		public void setMajority(boolean majority) {
+			this.majority = majority;
+		}
+
+		public int getEditDistance() {
+			return editDistance;
+		}
+
+		public void setEditDistance(int editDistance) {
+			this.editDistance = editDistance;
+		}
+		
 		public String getTree() {
 			return tree;
 		}
@@ -67,5 +85,3 @@ public class TestCase {
 		}
 	}
 }
-
-
