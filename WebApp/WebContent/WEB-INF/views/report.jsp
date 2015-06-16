@@ -87,6 +87,8 @@
 
 <content tag="local_script"> <script type="text/javascript">
 	$(document).ready(function() {
-		$('#testCases').DataTable();
+		$('#testCases').DataTable({
+			stateSave: true
+		});
 	});
 </script> </content>

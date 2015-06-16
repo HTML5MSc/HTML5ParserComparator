@@ -39,13 +39,13 @@ public class Comparator {
 
 	public String run(String[] args) throws Exception {
 
-		if (args.length % 2 == 0)
+		if (args.length % 2 != 0)
 			throw new Exception(
 					"Missing argument. Arguments must be the name test plus a set of pairs of output and the parser");
 
 		String[] parsers = getPasers(args);
 		List<OutputTree> trees = groupByEquality(args);
-		String reportFileName = "report.xml";
+		String reportFileName = args[1]; //"report.xml";
 
 		Document report = createReport(args[0], parsers, trees,
 				parseXmlFile(reportFileName));
@@ -90,10 +90,10 @@ public class Comparator {
 
 	private String[] getPasers(String[] args) throws Exception {
 
-		String[] parsers = new String[(args.length - 1) / 2];
+		String[] parsers = new String[(args.length - 2) / 2];
 
-		for (int i = 0; i < (args.length - 1) / 2; i = i + 1) {
-			parsers[i] = args[(i * 2) + 2];
+		for (int i = 0; i < (args.length - 2) / 2; i = i + 1) {
+			parsers[i] = args[(i * 2) + 3];
 		}
 		return parsers;
 
@@ -113,7 +113,7 @@ public class Comparator {
 
 		List<OutputTree> outputs = new ArrayList<OutputTree>();
 
-		for (int i = 1; i < args.length; i = i + 2) {
+		for (int i = 2; i < args.length; i = i + 2) {
 			OutputTree tree = new OutputTree(args[i], args[i + 1]);
 
 			if (!outputs.contains(tree))
