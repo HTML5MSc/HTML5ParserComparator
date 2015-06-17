@@ -45,7 +45,7 @@ if len(sys.argv) == 3:
 			document = p.parse(f)
 	output = p.tree.testSerializer(document)
 	
-	print convertTreeDump(output)
+	print convertTreeDump(output.encode('utf-8'))
 	
 	
 
