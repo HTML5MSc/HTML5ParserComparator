@@ -3,7 +3,6 @@ package com.HTML5.ParserComparer.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -11,7 +10,7 @@ import org.w3c.dom.NodeList;
 
 public class TestCaseGenerator {
 
-	//static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
+	// static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
 
 	public static TestCase getTestCase(String filePath, String name) {
 		TestCase testCase = new TestCase();
@@ -62,8 +61,9 @@ public class TestCaseGenerator {
 								.replace("\n", "<br>"));
 						testOutput.setEditDistance(0);
 					} else {
-						testOutput.setEditDistance(StringUtils
-								.getLevenshteinDistance(majorityTree, tree));
+						// testOutput.setEditDistance(StringUtils
+						// .getLevenshteinDistance(majorityTree, tree));
+						testOutput.setEditDistance(0);
 
 						testOutput.setTree(getTreeWithDiffFormat(majorityTree,
 								tree));

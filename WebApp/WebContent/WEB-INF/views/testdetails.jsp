@@ -1,6 +1,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <html>
 <head>
@@ -33,7 +34,7 @@
 			<tbody>
 				<tr>
 					<c:forEach var="output" items="${test.outputs}">
-						<td><pre><c:out value="${output.tree}" escapeXml="false" /></pre>
+						<td><pre style="width:${1200/fn:length(test.outputs)- 20}px"><c:out value="${output.tree}" escapeXml="false" /></pre>
 						<c:if test="${output.editDistance > 0}">
 								<b>Edit distance:</b>&nbsp;${output.editDistance}
 						</c:if></td>
@@ -45,3 +46,14 @@
 
 </body>
 </html>
+
+<content tag="local_script"> <script type="text/javascript">
+	$(document).ready(function() {
+		var subCatContainer = $("pre");
+		subCatContainer.scroll(function() {
+			subCatContainer.scrollTop($(this).scrollTop());
+			subCatContainer.scrollLeft($(this).scrollLeft());
+		});
+	});
+</script> 
+</content>

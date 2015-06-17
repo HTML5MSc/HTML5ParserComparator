@@ -96,7 +96,7 @@
 		src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
 	<script
 		src="${pageContext.request.contextPath}/js/dataTables.bootstrap.js"></script>
-		
+
 	<sitemesh:write property="page.local_script" />
 
 </body>
