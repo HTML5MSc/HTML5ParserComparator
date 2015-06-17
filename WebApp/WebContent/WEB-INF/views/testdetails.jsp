@@ -8,7 +8,7 @@
 </head>
 <body>
 
-	<a href="report.html">Return to Report</a>
+	<a href="report.html?reportName=${reportName}">Return to Report</a>
 
 	<c:if test="${not empty test}">
 		<h2>

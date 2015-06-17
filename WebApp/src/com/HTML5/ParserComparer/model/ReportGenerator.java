@@ -8,9 +8,9 @@ import org.w3c.dom.NodeList;
 
 public class ReportGenerator {
 
-	static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
+	//static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
 
-	public static Report getReport() {
+	public static Report getReport(String filePath) {
 		Report report = null;
 		Document document = XMLUtils.readXMLFromFile(filePath);
 		if (document != null) {

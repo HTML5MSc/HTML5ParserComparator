@@ -11,9 +11,9 @@ import org.w3c.dom.NodeList;
 
 public class TestCaseGenerator {
 
-	static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
+	//static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
 
-	public static TestCase getTestCase(String name) {
+	public static TestCase getTestCase(String filePath, String name) {
 		TestCase testCase = new TestCase();
 		String xPathExpression = "/report/test[@name=\"" + name + "\"]";
 		Document document = XMLUtils.readXMLFromFile(filePath);

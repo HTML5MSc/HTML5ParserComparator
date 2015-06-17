@@ -1,19 +1,31 @@
 package com.HTML5.ParserComparer.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.HTML5.ParserComparer.model.ParserInput;
+import com.HTML5.ParserComparer.model.ProcessRunner;
 import com.HTML5.ParserComparer.model.Report;
 import com.HTML5.ParserComparer.model.ReportGenerator;
 import com.HTML5.ParserComparer.model.TestCase;
 import com.HTML5.ParserComparer.model.TestCaseGenerator;
+import com.HTML5.ParserComparer.model.WebConfig;
 
 @Controller
 public class ReportController {
+	@Autowired
+	WebConfig webConfig;
 
-	@RequestMapping("/hello")
+	@RequestMapping(value = "/hello", method = RequestMethod.GET)
 	public String hello(
 			@RequestParam(value = "name", required = false, defaultValue = "World") String name,
 			Model model) {
@@ -24,38 +36,74 @@ public class ReportController {
 
 	}
 
-	// @RequestMapping("/report")
-	// public ModelAndView report() {
-	//
-	// // Report report = initializeReport();
-	// Report report = ReportGenerator.generate();
-	// return new ModelAndView("report", "report", report);
-	// }
-
 	@RequestMapping("/report")
-	public String report(Model model) {
-
+	public String report(
+			Model model,
+			@RequestParam(value = "reportName", required = true) String reportName) {
 		// Report report = initializeReport();
-		Report report = ReportGenerator.getReport();
+		Report report = ReportGenerator.getReport(webConfig.getReportPath()
+				.concat(reportName));
+		model.addAttribute("reportName", reportName);
 		model.addAttribute("report", report);
 		return "report";
 	}
 
-	// @RequestMapping("/testdetails")
-	// public ModelAndView testDetails(
-	// @RequestParam(value = "testName", required = false) String testName) {
-	// // Test test = initializeTest();
-	// Test test = ReportGenerator.getTest(testName);
-	// return new ModelAndView("testdetails", "test", test);
-	// }
 
 	@RequestMapping("/testdetails")
-	public String testDetails(Model model,
+	public String testDetails(
+			Model model,
+			@RequestParam(value = "reportName", required = true) String reportName,
 			@RequestParam(value = "testName", required = false) String testName) {
 		// Test test = initializeTest();
-		TestCase testCase = TestCaseGenerator.getTestCase(testName);
+		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
+				.getReportPath().concat(reportName), testName);
+		model.addAttribute("reportName", reportName);
 		model.addAttribute("test", testCase);
 		return "testdetails";
+	}
+
+	@RequestMapping(value = "/inputform", method = RequestMethod.GET)
+	public String viewParserForm(Model model) {
+		ParserInput parserInput = new ParserInput();
+		model.addAttribute("parserInput", parserInput);
+
+		List<String> inputTypeList = new ArrayList<String>();
+		inputTypeList.add("String");
+		inputTypeList.add("URL");
+		model.addAttribute("inputTypeList", inputTypeList);
+
+		return "inputform";
+	}
+
+	@RequestMapping(value = "/inputform", method = RequestMethod.POST)
+	public String processParserForm(
+			@ModelAttribute("parserInput") ParserInput parserInput, Model model) {
+		// Map<String, Object> model) {
+		// model.put("inputTypeList", inputTypeList);
+		// // implement your own registration logic here...
+		// // for testing purpose:
+		// System.out.println("value: " + parserInput.getValue());
+
+		String reportName = "report".concat(
+				Long.toString(System.currentTimeMillis())).concat(".xml");
+		List<String> args = new ArrayList<String>();
+		args.add(webConfig.getBashScriptFullPath());
+		args.add("-n");
+		args.add(webConfig.getReportPath().concat(reportName));
+		args.add(parserInput.getTypeParameter());
+		args.add(parserInput.getValue());
+		try {
+			ProcessRunner.run(args);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Report report = ReportGenerator.getReport(webConfig.getReportPath()
+				.concat(reportName));
+		model.addAttribute("reportName", reportName);
+		model.addAttribute("report", report);
+		return "report";
 	}
 
 	// private Report initializeReport() {

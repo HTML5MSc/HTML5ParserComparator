@@ -70,10 +70,11 @@
 						<td><c:out value="${testCase.name}" /></td>
 						<td><c:if test="${testCase.numberOfTrees == 1}">
 							Yes&nbsp;|&nbsp;<a
-									href="testdetails.html?testName=${testCase.name}">View tree</a>
+									href="testdetails.html?reportName=${reportName}&testName=${testCase.name}">View
+									tree</a>
 							</c:if> <c:if test="${testCase.numberOfTrees != 1}">
 							No&nbsp;|&nbsp;<a
-									href="testdetails.html?testName=${testCase.name}">View
+									href="testdetails.html?reportName=${reportName}&testName=${testCase.name}">View
 									differences</a>
 							</c:if></td>
 						<td>${testCase.numberOfTrees}</td>
@@ -88,7 +89,7 @@
 <content tag="local_script"> <script type="text/javascript">
 	$(document).ready(function() {
 		$('#testCases').DataTable({
-			stateSave: true
+			stateSave : true
 		});
 	});
 </script> </content>

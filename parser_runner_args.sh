@@ -1,4 +1,4 @@
-function parse {
+parse () {
 	parse5output=`nodejs parse5/parser5.js "$3" "$4"`
 	jsoupOutput=`java -jar jsoup/JsoupParser.jar "$3" "$4"`
 	html5libOutput=`python html5lib/html5libAdapter.py "$3" "$4"`
@@ -21,6 +21,7 @@ esac done
 
 rm -f "$reportName"
 echo "Report" > "$reportName"
+#echo "$reportName" "$inputType" "$inputValue"
 
 if [ "$inputType" = "-f" ]; then
 	if [ "$inputValue" = "" ]; then
