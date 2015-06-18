@@ -56,9 +56,7 @@ public class TestCaseGenerator {
 					testOutput.setParsers(parsers);
 					String tree = treeNode.getTextContent();
 					if (isMajority) {
-						testOutput.setTree(tree.replace("&", "&amp;")
-								.replace("<", "&lt;").replace(">", "&gt;")
-								.replace("\n", "<br>"));
+						testOutput.setTree(escapeStringToHTML(tree));
 						testOutput.setEditDistance(0);
 					} else {
 						// testOutput.setEditDistance(StringUtils
@@ -94,8 +92,14 @@ public class TestCaseGenerator {
 	private static String getTreeWithDiffFormat(String string1, String string2) {
 		diff_match_patch dmp = new diff_match_patch();
 		LinkedList<diff_match_patch.Diff> diffs = dmp.diff_main(string1,
-				string2);
+				string2, false);
 		dmp.diff_cleanupMerge(diffs);
 		return dmp.diff_prettyHtml_Bootstrap(diffs);
+	}
+
+	private static String escapeStringToHTML(String string) {
+		return string.replace("&", "&amp;").replace("<", "&lt;")
+				.replace(">", "&gt;");
+		// .replace("\n", "<br>");
 	}
 }

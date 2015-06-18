@@ -13,10 +13,16 @@ footer {
 }
 
 pre {
-	background-color: #FFF; 
+	background-color: #FDFDFD; 
 	font-size: 16px;
-	word-wrap: normal !important;
-//	height: 600px;
+//	word-wrap: normal !important; //uncomment to enable scroll
 	max-height: 600px;
-//	width:600px;
+}
+
+.text-inserted{
+	background-color: #A6F3A6; //#EAFFEA;
+}
+
+.text-deleted{
+	background-color: #F8CBCB; //FFECEC;
 }

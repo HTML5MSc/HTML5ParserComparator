@@ -34,7 +34,9 @@
 			<tbody>
 				<tr>
 					<c:forEach var="output" items="${test.outputs}">
-						<td><pre style="width:${1200/fn:length(test.outputs)- 20}px"><c:out value="${output.tree}" escapeXml="false" /></pre>
+						<td>
+						<!--?prettify lang=html linenums=true?-->
+						<pre style="width:${1200/fn:length(test.outputs)- 20}px"><c:out value="${output.tree}" escapeXml="false" /></pre>
 						<c:if test="${output.editDistance > 0}">
 								<b>Edit distance:</b>&nbsp;${output.editDistance}
 						</c:if></td>
@@ -54,6 +56,8 @@
 			subCatContainer.scrollTop($(this).scrollTop());
 			subCatContainer.scrollLeft($(this).scrollLeft());
 		});
+		
+		prettyPrint();
 	});
 </script> 
 </content>

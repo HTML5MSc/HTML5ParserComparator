@@ -1363,14 +1363,14 @@ public class diff_match_patch {
 	    StringBuilder html = new StringBuilder();
 	    for (Diff aDiff : diffs) {
 	      String text = aDiff.text.replace("&", "&amp;").replace("<", "&lt;")
-	          .replace(">", "&gt;").replace("\n", "<br>");
+	          .replace(">", "&gt;"); //.replace("\n", "<br>");
 	      switch (aDiff.operation) {
 	      case INSERT:
-	        html.append("<ins class=\"bg-success\">").append(text)
+	        html.append("<ins class=\"text-inserted\">").append(text)
 	            .append("</ins>");
 	        break;
 	      case DELETE:
-	        html.append("<del class=\"bg-danger\">").append(text)
+	        html.append("<del class=\"text-deleted\">").append(text)
 	            .append("</del>");
 	        break;
 	      case EQUAL:
