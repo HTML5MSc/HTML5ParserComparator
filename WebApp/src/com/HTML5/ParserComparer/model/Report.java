@@ -42,11 +42,11 @@ public class Report {
 		this.testDate = testDate;
 	}
 
-	public ArrayList<TestCase> getTests() {
+	public ArrayList<TestCase> getTestCases() {
 		return testCases;
 	}
 
-	public void setTests(ArrayList<TestCase> testCases) {
+	public void setTestCases(ArrayList<TestCase> testCases) {
 		this.testCases = testCases;
 	}
 
