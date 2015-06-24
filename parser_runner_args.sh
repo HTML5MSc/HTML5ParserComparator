@@ -13,7 +13,6 @@ parse () {
 	echo `java -jar comparator/Comparator.jar output.xml`
 	rm -f output.xml
 	#expected=`cat $(echo $filename | sed 's/data/expected/g')`
-	
 }
 
 #default values
@@ -28,7 +27,7 @@ do case "${option}" in
 	u) inputType="-u" inputValue=${OPTARG};;  
 esac done
 
-#rm -f "$reportName"
+rm -f "$reportName"
 echo "Report" > "$reportName"
 #echo "$reportName" "$inputType" "$inputValue"
 
