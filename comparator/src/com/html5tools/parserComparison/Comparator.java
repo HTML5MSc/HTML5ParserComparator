@@ -1,14 +1,17 @@
 package com.html5tools.parserComparison;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,301 +25,29 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.html5tools.parserComparison.diff_match_patch.Diff;
+import com.html5tools.parserComparison.diff_match_patch.Operation;
 
 /**
  *
- * @author JoséArmando
+ * @author JoseArmando
  */
 public class Comparator {
 
-	public String run(String[] args) throws Exception {
-		
-		if (args.length % 2 == 0)
-			throw new Exception(
-					"Missing argument. Arguments must be the name test plus a set of pairs of output and the parser");
-		
-		String[] parsers = getPasers(args);
-		List<OutputTree> trees = groupByEquality(args);
-		String reportFileName = "report.xml";
-		
-		Document report = createReport(args[0], parsers, trees, parseXmlFile(reportFileName));
-		
-		StringWriter writer = new StringWriter();
-		StreamResult resultString = new StreamResult(writer);
-		
-		File output = new File(reportFileName);
-		StreamResult resultFile = new StreamResult(output);
-		
-		DOMSource source = new DOMSource(report);
-		try {
-			Transformer t = TransformerFactory.newInstance().newTransformer();
-			t.setOutputProperty(OutputKeys.INDENT, "yes");
-			t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			t.setOutputProperty(OutputKeys.METHOD, "xml");
-			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-					"4");
-			t.transform(source, resultFile);
-			t.transform(source, resultString);
-		} catch (TransformerException e) {
-			e.printStackTrace();
-		}
-		return writer.toString();
-	}
-
-	private Document parseXmlFile(String file) {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		try {
-			db = dbf.newDocumentBuilder();
-			return db.parse(file);
-		} catch (FileNotFoundException e) {
-			System.out.println("File "+file+" not found. Creating new file...");
-		}
-		catch (ParserConfigurationException | SAXException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	private String[] getPasers(String[] args) throws Exception {
-
-		
-		
-		String[] parsers = new String[(args.length - 1) / 2]; 
-
-		for (int i = 0; i < (args.length -1) / 2; i = i + 1) {
-			parsers[i] = args[(i*2)+2];
-		}
-		return parsers;
-		
-//		if (args.length % 2 != 0)
-//			throw new Exception(
-//					"Missing argument. Arguments must be a set of pairs of output and the parser");
-//		
-//		String[] parsers = new String[args.length / 2]; 
-//
-//		for (int i = 0; i < args.length / 2; i = i + 1) {
-//			parsers[i] = args[(i*2)+1];
-//		}
-//		return parsers;
-	}
-	
-	private List<OutputTree> groupByEquality(String[] args) throws Exception {
-
-		List<OutputTree> outputs = new ArrayList<OutputTree>();
-
-		for (int i = 1; i < args.length; i = i + 2) {
-			OutputTree tree = new OutputTree(args[i], args[i + 1]);
-			
-			if(!outputs.contains(tree)) outputs.add(tree);
-			else outputs.get(outputs.indexOf(tree)).addParser(args[i + 1]);
-			
-		}
-		return outputs;
-		
-		//		List<OutputTree> outputs = new ArrayList<OutputTree>();
-//
-//		for (int i = 0; i < args.length; i = i + 2) {
-//			OutputTree tree = new OutputTree(args[i], args[i + 1]);
-//			
-//			if(!outputs.contains(tree)) outputs.add(tree);
-//			else outputs.get(outputs.indexOf(tree)).addParser(args[i + 1]);
-//			
-//		}
-//		return outputs;
-	}
-
-	private Document createReport(String testName, String[] parserNames, List<OutputTree> data, Document report) {
-		// Document report = null;
-		
-		try {
-			
-			Node root;
-			
-			if (report == null) {
-				// Create new report node
-				report = DocumentBuilderFactory.newInstance()
-						.newDocumentBuilder().newDocument();
-
-				root = report.createElement("report");
-				report.appendChild(root);
-				
-				appendTotalsTags(report, root);
-				appendParserInfoTags(report, root, parserNames);
-				
-			}else{
-				// Append to the existing report node
-				root = report.getElementsByTagName("report").item(0);
-			}
-
-			Node totals = report.getElementsByTagName("generalData").item(0);
-			
-			//Add test to the counter
-			Node totalTests = totals.getAttributes().getNamedItem("numberOfTests");
-			totalTests.setNodeValue(String.valueOf(Integer.parseInt(totalTests.getNodeValue())+1));
-			
-			
-			Node test = report.createElement("test");
-			root.appendChild(test);
-			
-			//test name attr
-			Attr testNameNode = report.createAttribute("name");
-			testNameNode.setNodeValue(testName);
-			test.getAttributes().setNamedItem(testNameNode);
-			
-			
-			//All equal attr
-			Attr allEqual = report.createAttribute("allEqual");
-			test.getAttributes().setNamedItem(allEqual);
-			
-			XPath xPath =  XPathFactory.newInstance().newXPath();
-			
-			if (data.size() > 1){
-				//Add a difference to the counter
-				Node counter = totals.getAttributes().getNamedItem("different");
-				counter.setNodeValue(String.valueOf(Integer.parseInt(counter.getNodeValue())+1));
-				
-				allEqual.setNodeValue("false");
-				
-			}else{
-				//Add an assert to the counter
-				Node counter = totals.getAttributes().getNamedItem("equals");
-				counter.setNodeValue(String.valueOf(Integer.parseInt(counter.getNodeValue())+1));
-				
-				allEqual.setNodeValue("true");
-			}
-			
-			
-			List<String> parsersInMajority = new ArrayList<String>();
-			int majorityNumberOfAgreements=0;
-			for (OutputTree tree : data) {
-				//System.out.println(tree);
-
-				Node output = report.createElement("output");
-				test.appendChild(output);
-
-				Node parsers = report.createElement("parsers");
-				output.appendChild(parsers);
-
-				if(tree.getParsers().size()>majorityNumberOfAgreements){
-					majorityNumberOfAgreements=tree.getParsers().size();
-					parsersInMajority = tree.getParsers();
-				}else if(tree.getParsers().size() == majorityNumberOfAgreements){
-					parsersInMajority = new ArrayList<String>(); //no majority
-				}
-				
-				for (String parserName : tree.getParsers()) {
-					Node parser= report.createElement("parser");
-					parsers.appendChild(parser);
-					
-					Node parserNameNode = report.createAttribute("name");
-					parserNameNode.setNodeValue(parserName);
-					parser.getAttributes().setNamedItem(parserNameNode);
-					
-				}
-
-				Node treeNode = report.createElement("tree");
-				output.appendChild(treeNode);
-				CDATASection outputTree = report.createCDATASection(tree
-						.getTree());
-				treeNode.appendChild(outputTree);
-			}
-			
-			//Update results due to majority
-			
-			//is mayority? more than the half of total trees
-			//TODO: CHECK, IF ACCORDING to boyer-moore majority vote algorithm then uncomment 
-//			double halfNoOfPasers = parserNames.length / 2;
-//			if(parsersInMajority.size() <= halfNoOfPasers){
-//				parsersInMajority.clear();
-//			}
-				
-			for (String parserName : parsersInMajority) {
-				
-				Node parserNodeInTestResult= (Node) xPath.compile("testResult/*[@name='"+parserName+"']").evaluate(root, XPathConstants.NODE);
-				//is mayority? more than the half of total trees
-				Node passed = parserNodeInTestResult.getAttributes().getNamedItem("passed");
-				passed.setNodeValue(String.valueOf(Integer.parseInt(passed.getNodeValue())+1));
-			}
-			List<String> failingParsers =new ArrayList<String>(Arrays.asList(parserNames));
-			failingParsers.removeAll(parsersInMajority);
-			
-			for (String parserName : failingParsers) {
-				
-				Node parserNodeInTestResult= (Node) xPath.compile("testResult/*[@name='"+parserName+"']").evaluate(root, XPathConstants.NODE);
-				//is mayority? more than the half of total trees
-				Node failed = parserNodeInTestResult.getAttributes().getNamedItem("failed");
-				failed.setNodeValue(String.valueOf(Integer.parseInt(failed.getNodeValue())+1));
-			}
-	
-			
-		} catch (ParserConfigurationException | XPathExpressionException e) {
-			e.printStackTrace();
-		}
-		return report;
-	}
-	
-	private void appendTotalsTags(Document report, Node root){
-		
-		Node totals;
-		Attr totalTests, equals, diff;
-		
-		totals = report.createElement("generalData");
-		root.appendChild(totals);
-		
-		totalTests = report.createAttribute("numberOfTests");
-		totalTests.setNodeValue("0");
-		equals = report.createAttribute("equals");
-		equals.setNodeValue("0");
-		diff = report.createAttribute("different");
-		diff.setNodeValue("0");
-		
-		Attr date = report.createAttribute("date");
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		Date dateD = new Date();
-		date.setNodeValue(dateFormat.format(dateD));
-		
-		totals.getAttributes().setNamedItem(totalTests);
-		totals.getAttributes().setNamedItem(equals);
-		totals.getAttributes().setNamedItem(diff);
-		totals.getAttributes().setNamedItem(date);
-	}
-	
-private void appendParserInfoTags(Document report, Node root, String[] parsers){
-		
-		Node testResult;
-		
-		testResult = report.createElement("testResult");
-		root.appendChild(testResult);
-		
-		for (String parser: parsers){
-			Attr parseName, passed, failed;
-			
-			Node parserNode = report.createElement("parser");
-			testResult.appendChild(parserNode);
-			
-			parseName = report.createAttribute("name");
-			parseName.setNodeValue(parser);
-			passed = report.createAttribute("passed");
-			passed.setNodeValue("0");
-			failed = report.createAttribute("failed");
-			failed.setNodeValue("0");
-			
-			parserNode.getAttributes().setNamedItem(parseName);
-			parserNode.getAttributes().setNamedItem(passed);
-			parserNode.getAttributes().setNamedItem(failed);
-			
-		}
-	}
+	Document report;
+	List<String> parserNames;
 
 	/**
 	 * @param args
@@ -327,75 +58,307 @@ private void appendParserInfoTags(Document report, Node root, String[] parsers){
 
 		Comparator comparator = new Comparator();
 		comparator.run(args);
-		//System.out.println(comparator.run(args));
+		// System.out.println(comparator.run(args));
 
 	}
 
-}
+	public void run(String[] args) throws Exception {
 
-class OutputTree {
+		if (args.length != 1)
+			throw new Exception(
+					"Missing argument. Argument must be the path to an xml file.");
 
-	private String tree;
-	private List<String> parsers;
+		Document inputData = getDocument(args[0]);
+		Node root = inputData.getFirstChild();
+		String testName = root.getAttributes().getNamedItem("name")
+				.getNodeValue();
+		String reportFileName = root.getAttributes().getNamedItem("report")
+				.getNodeValue();
 
-	public OutputTree(String tree, String parser) {
-		this.tree = tree;
-		parsers = new ArrayList<String>();
-		parsers.add(parser);
+		parserNames = getParserNames(root);
+		List<OutputTree> trees = groupByEquality(root);
+
+		try {
+			report = getDocument(reportFileName);
+		} catch (Exception e) {
+			createReport();
+		}
+
+		updateReport(testName, trees);
+
+		saveReportToFile(reportFileName);
 	}
 
-	public void addParser(String parser) {
-		parsers.add(parser);
-	}
+	private List<String> getParserNames(Node node) {
 
-	public String getTree() {
-		return tree;
-	}
+		List<String> parsers = new ArrayList<String>();
+		for (Element element : getElementsByTagName(node, "tree"))
+			parsers.add(element.getAttributes().getNamedItem("parser")
+					.getNodeValue());
 
-	public void setTree(String tree) {
-		this.tree = tree;
-	}
-
-	public List<String> getParsers() {
 		return parsers;
 	}
 
-	public void setParsers(List<String> parsers) {
-		this.parsers = parsers;
-	}
+	private List<OutputTree> groupByEquality(Node node) {
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(tree.toString() + "\n");
-		for (String parser : parsers) {
-			sb.append(parser.toString() + " ");
+		List<OutputTree> outputs = new ArrayList<OutputTree>();
+		for (Element element : getElementsByTagName(node, "tree")) {
+			String parser = element.getAttributes().getNamedItem("parser")
+					.getNodeValue();
+			String tree = element.getTextContent();
+			OutputTree outputTree = new OutputTree(tree, parser);
+			if (!outputs.contains(outputTree))
+				outputs.add(outputTree);
+			else
+				outputs.get(outputs.indexOf(outputTree)).addParser(parser);
 		}
-		return sb.toString();
+
+		Collections.sort(outputs);
+		return outputs;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((tree == null) ? 0 : tree.hashCode());
-		return result;
+	private Document getDocument(String fileName)
+			throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbf;
+		DocumentBuilder db;
+		Document document;
+
+		dbf = DocumentBuilderFactory.newInstance();
+		db = dbf.newDocumentBuilder();
+		// document = db.parse(new File(fileName));
+
+		File file = new File(fileName);
+		InputStream inputStream = new FileInputStream(file);
+		Reader reader = new InputStreamReader(inputStream, "UTF-8");
+		InputSource is = new InputSource(reader);
+		is.setEncoding("UTF-8");
+
+		document = db.parse(is);
+
+		return document;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OutputTree other = (OutputTree) obj;
-		if (tree == null) {
-			if (other.tree != null)
-				return false;
-		} else if (!tree.equals(other.tree))
-			return false;
-		return true;
+	private void createReport() {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db;
+		try {
+			db = dbf.newDocumentBuilder();
+			report = db.newDocument();
+			addNode(report, "report");
+			appendTotalsTags();
+			appendParserInfoTags();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
+	private void appendTotalsTags() {
+
+		Node root = report.getFirstChild();
+		Node totals = addNode(root, "generalData");
+
+		addAttribute(totals, "numberOfTests", "0");
+		addAttribute(totals, "equals", "0");
+		addAttribute(totals, "different", "0");
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		addAttribute(totals, "date", dateFormat.format(new Date()));
+	}
+
+	private void appendParserInfoTags() {
+
+		Node root = report.getFirstChild();
+		Node testResult = addNode(root, "testResult");
+
+		for (String parser : parserNames) {
+			Node parserNode = addNode(testResult, "parser");
+
+			addAttribute(parserNode, "name", parser);
+			addAttribute(parserNode, "passed", "0");
+			addAttribute(parserNode, "failed", "0");
+		}
+	}
+
+	private void updateReport(String testName, List<OutputTree> trees) {
+
+		Node root = report.getElementsByTagName("report").item(0);
+		Node totals = report.getElementsByTagName("generalData").item(0);
+		incrementAttributeValue(totals, "numberOfTests");
+
+		Node test = addNode(root, "test");
+		addAttribute(test, "name", testName);
+		addAttribute(test, "numberOfTrees", String.valueOf(trees.size()));
+
+		if (trees.size() == 1)
+			incrementAttributeValue(totals, "equals");
+		else
+			incrementAttributeValue(totals, "different");
+
+		String majorityTree = null;
+		for (int i = 0; i < trees.size(); i++) {
+			OutputTree tree = trees.get(i);
+
+			Node output = addNode(test, "output");
+
+			Node parsers = addNode(output, "parsers");
+			for (String parserName : tree.getParsers()) {
+				Node parser = addNode(parsers, "parser");
+				addAttribute(parser, "name", parserName);
+			}
+
+			Node treeNode = addNode(output, "tree");
+			// Because the list is ordered, the first tree represents the
+			// majority
+			if (i == 0) {
+				addAttribute(output, "majority", "true");
+				majorityTree = tree.getTree();
+				addCDATA(treeNode, tree.getTree());
+			} else {
+				addAttribute(output, "majority", "false");
+				Node diffsNode = getDiffsNode(majorityTree, tree.getTree());
+				treeNode.appendChild(diffsNode);
+			}
+		}
+
+		List<String> parsersInMajority = trees.get(0).getParsers();
+		updateTestResults(parsersInMajority);
+	}
+
+	private Node getDiffsNode(String tree1, String tree2) {
+		Node diffsNode = report.createElement("diffs");
+
+		diff_match_patch dmp = new diff_match_patch();
+		LinkedList<diff_match_patch.Diff> diffs = dmp.diff_main(tree1, tree2,
+				false);
+		dmp.Diff_EditCost = 1;		
+		dmp.diff_cleanupEfficiency(diffs);
+		//dmp.diff_cleanupSemantic(diffs);
+		//dmp.diff_cleanupMerge(diffs);
+
+		int index = 0;
+		for (Diff diff : diffs) {
+			if (diff.operation != Operation.EQUAL) {
+				Node diffNode = addNode(diffsNode, "diff");
+				addCDATA(diffNode, diff.text);
+				addAttribute(diffNode, "index", String.valueOf(index));
+
+				if (diff.operation == Operation.INSERT)
+					addAttribute(diffNode, "type", "I");
+				else if (diff.operation == Operation.DELETE)
+					addAttribute(diffNode, "type", "D");
+			}
+			index += diff.text.length();
+		}
+
+		return diffsNode;
+	}
+
+	private void updateTestResults(List<String> parsersInMajority) {
+		// Update results due to majority
+
+		// is mayority? more than the half of total trees
+		// TODO: CHECK, IF ACCORDING to boyer-moore majority vote algorithm
+		// then uncomment
+		double halfNoOfPasers = parserNames.size() / 2;
+		if (parsersInMajority.size() <= halfNoOfPasers) {
+			parsersInMajority.clear();
+		}
+
+		for (String parserName : parsersInMajority) {
+
+			String xPathExp = "/report/testResult/*[@name='" + parserName
+					+ "']";
+			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
+			// is mayority? more than the half of total trees
+			if (parserNodeInTestResult != null)
+				incrementAttributeValue(parserNodeInTestResult, "passed");
+		}
+		List<String> failingParsers = parserNames;
+		failingParsers.removeAll(parsersInMajority);
+
+		for (String parserName : failingParsers) {
+
+			String xPathExp = "/report/testResult/*[@name='" + parserName
+					+ "']";
+			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
+			// is mayority? more than the half of total trees
+			if (parserNodeInTestResult != null)
+				incrementAttributeValue(parserNodeInTestResult, "failed");
+		}
+	}
+
+	private void saveReportToFile(String reportFileName) {
+		// StringWriter writer = new StringWriter();
+		// StreamResult resultString = new StreamResult(writer);
+
+		File output = new File(reportFileName);
+		StreamResult resultFile = new StreamResult(output);
+
+		DOMSource source = new DOMSource(report);
+		try {
+			Transformer t = TransformerFactory.newInstance().newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			t.setOutputProperty(OutputKeys.METHOD, "xml");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+					"4");
+			t.transform(source, resultFile);
+			// t.transform(source, resultString);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+		// return writer.toString();
+	}
+
+	private Node addNode(Node baseNode, String newNodeName) {
+		Node newNode = report.createElement(newNodeName);
+		baseNode.appendChild(newNode);
+		return newNode;
+	}
+
+	private void addCDATA(Node baseNode, String value) {
+		CDATASection cdataSection = report.createCDATASection(value);
+		baseNode.appendChild(cdataSection);
+	}
+
+	private void addAttribute(Node node, String attName, String attValue) {
+		Attr attr = report.createAttribute(attName);
+		attr.setNodeValue(attValue);
+		node.getAttributes().setNamedItem(attr);
+	}
+
+	private void incrementAttributeValue(Node node, String attName) {
+		Node attr = node.getAttributes().getNamedItem(attName);
+		String attValue = String
+				.valueOf(Integer.parseInt(attr.getNodeValue()) + 1);
+		attr.setNodeValue(attValue);
+	}
+
+	public static ArrayList<Element> getElementsByTagName(Node node,
+			String tagName) {
+		ArrayList<Element> elements = new ArrayList<Element>();
+		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+			Node n = node.getChildNodes().item(i);
+			if (n.getNodeType() == Node.ELEMENT_NODE
+					&& n.getNodeName().equals(tagName)) {
+				elements.add((Element) n);
+			}
+		}
+		return elements;
+	}
+
+	private Node executeXPathExpression(String expression) {
+		Node node = null;
+		XPathFactory xPathfactory = XPathFactory.newInstance();
+		XPath xpath = xPathfactory.newXPath();
+		XPathExpression expr;
+		try {
+			expr = xpath.compile(expression);
+			node = (Node) expr.evaluate(report, XPathConstants.NODE);
+		} catch (XPathExpressionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return node;
+	}
 }
