@@ -1,14 +1,116 @@
 <report>
-	<generalData numberOftests="8" equals="5" different="3" date="12/02/2015" />
-	<testResult>
-		<parser name="jsoup" passed="6" failed="2" />
-		<parser name="html5lib" passed="6" failed="2" />
-		<parser name="parse5" passed="5" failed="3" />
-	</testResult>
-	<test name="adoption01-1" allEqual="true" />
-    <test name="adoption01-2" allEqual="false">
-        <output>
+    <generalData date="15/06/2015 18:42:24" different="4" equals="13" numberOfTests="17"/>
+    <testResult>
+        <parser failed="0" name="expected" passed="17"/>
+        <parser failed="0" name="html5lib" passed="17"/>
+        <parser failed="0" name="parse5" passed="17"/>
+        <parser failed="4" name="jsoup" passed="13"/>
+    </testResult>
+    <test name="./html5libTests/data/adoption01/1.txt" numberOfTrees="1">
+        <output majority="true">
             <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|     <p>
+|       <a>]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/10.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <p>
+|       "1"
+|       <s>
+|         id="A"
+|         "2"
+|         <b>
+|           id="B"
+|           "3"
+|     <s>
+|       id="A"
+|       <b>
+|         id="B"
+|         "4"
+|     <b>
+|       id="B"
+|       "5"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/11.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <a>
+|       "3"
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             "2"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/12.txt" numberOfTrees="2">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     "AC"
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             "B"]]></tree>
+        </output>
+        <output majority="false">
+            <parsers>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <table>
+|       "A"
+|       <tbody>
+|         <tr>
+|           <td>
+|             "B"
+|           "C"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/13.txt" numberOfTrees="2">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
                 <parser name="parse5"/>
             </parsers>
             <tree><![CDATA[| <html>
@@ -19,7 +121,7 @@
 |         <svg tr>
 |           <svg input>]]></tree>
         </output>
-        <output>
+        <output majority="false">
             <parsers>
                 <parser name="jsoup"/>
             </parsers>
@@ -30,60 +132,12 @@
 |       <svg>
 |         <input>]]></tree>
         </output>
-		<output>
+    </test>
+<test name="./html5libTests/data/adoption01/14.txt" numberOfTrees="2">
+        <output majority="true">
             <parsers>
+                <parser name="expected"/>
                 <parser name="html5lib"/>
-				<parser name="another parser test"/>
-            </parsers>
-            <tree><![CDATA[| <html>
-|   <head>
-|   <body>
-|     <a>
-|       <svg>
-|         <TEST>
-|         <input>]]></tree>
-        </output>
-    </test>
-<test name="adoption01-3" allEqual="false">
-        <output>
-            <parsers>
-                <parser name="parse5"/>
-            </parsers>
-            <tree><![CDATA[| <html>
-|   <head>
-|   <body>
-|     <a>
-|       "1"
-|     <div>
-|       <a>
-|         "2"
-|       <div>
-|         <a>
-|           "3"
-|         "4"
-|       "5"]]></tree>
-        </output>
-        <output>
-            <parsers>
-                <parser name="jsoup"/>
-            </parsers>
-            <tree><![CDATA[| <html>
-|   <head>
-|   <body>
-|     <a>
-|       "1"
-|     <div>
-|       <a>
-|         "2"
-|         <div>
-|           "3"
-|           "4"
-|         "5"]]></tree>
-        </output>
-    </test>
-<test name="adoption01-4" allEqual="false">
-        <output>
-            <parsers>
                 <parser name="parse5"/>
             </parsers>
             <tree><![CDATA[| <html>
@@ -112,7 +166,7 @@
 |                           <div>
 |                             <div>]]></tree>
         </output>
-        <output>
+        <output majority="false">
             <parsers>
                 <parser name="jsoup"/>
             </parsers>
@@ -136,36 +190,243 @@
 |                             <div>]]></tree>
         </output>
     </test>
-<test name="adoption01-5" allEqual="false">
-        <output>
+<test name="./html5libTests/data/adoption01/15.txt" numberOfTrees="1">
+        <output majority="true">
             <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <div>
+|       <a>
+|         <b>
+|           <u>
+|             <i>
+|               <code>
+|       <u>
+|         <i>
+|           <code>
+|             <div>
+|               <a>]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/16.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <b>
+|       <b>
+|         <b>
+|           <b>
+|             "x"
+|     "y"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/17.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <p>
+|       <b>
+|         <b>
+|           <b>
+|             <b>
+|     <p>
+|       <b>
+|         <b>
+|           <b>
+|             "x"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/2.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <p>
+|       <a>
+|         "2"
+|       "3"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/3.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <button>
+|       <a>
+|         "2"
+|       "3"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/4.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|       <b>
+|         "2"
+|     <b>
+|       "3"]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/5.txt" numberOfTrees="2">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
                 <parser name="parse5"/>
             </parsers>
             <tree><![CDATA[| <html>
 |   <head>
 |   <body>
-|     "AC"
-|     <table>
-|       <tbody>
-|         <tr>
-|           <td>
-|             "B"]]></tree>
+|     <a>
+|       "1"
+|     <div>
+|       <a>
+|         "2"
+|       <div>
+|         <a>
+|           "3"
+|         "4"
+|       "5"]]></tree>
         </output>
-        <output>
+        <output majority="false">
             <parsers>
                 <parser name="jsoup"/>
             </parsers>
             <tree><![CDATA[| <html>
 |   <head>
 |   <body>
-|     <table>
-|       "A"
-|       <tbody>
-|         <tr>
-|           <td>
-|             "B"
-|           "C"]]></tree>
+|     <a>
+|       "1"
+|     <div>
+|       <a>
+|         "2"
+|         <div>
+|           "3"
+|           "4"
+|         "5"]]></tree>
         </output>
     </test>
-	<test name="adoption01-6" allEqual="true" />
+<test name="./html5libTests/data/adoption01/6.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       "1"
+|     <p>
+|       <a>
+|         "2"
+|       "3"
+|     <table>]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/7.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <b>
+|       <b>
+|         <a>
+|         <p>
+|           <a>]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/8.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <b>
+|       <a>
+|         <b>
+|       <b>
+|         <p>
+|           <a>]]></tree>
+        </output>
+    </test>
+<test name="./html5libTests/data/adoption01/9.txt" numberOfTrees="1">
+        <output majority="true">
+            <parsers>
+                <parser name="expected"/>
+                <parser name="html5lib"/>
+                <parser name="parse5"/>
+                <parser name="jsoup"/>
+            </parsers>
+            <tree><![CDATA[| <html>
+|   <head>
+|   <body>
+|     <a>
+|       <b>
+|         <b>
+|     <b>
+|       <b>
+|         <p>
+|           <a>]]></tree>
+        </output>
+    </test>
 </report>
