@@ -52,7 +52,7 @@
 		</table>
 	</c:if>
 
-	<c:if test="${not empty report.tests}">
+	<c:if test="${not empty report.testCases}">
 		<h2>
 			<small>Test list</small>
 		</h2>
@@ -61,18 +61,23 @@
 				<tr>
 					<th>Name</th>
 					<th>All equal</th>
+					<th>Number of trees</th>
 				</tr>
 			</thead>
 			<tbody>
-				<c:forEach var="test" items="${report.tests}">
+				<c:forEach var="testCase" items="${report.testCases}">
 					<tr>
-						<td><c:out value="${test.name}" /></td>
-						<td><c:out value="${test.allEqual}" /> <c:if
-								test="${test.allEqual == false}">
-							&nbsp;|&nbsp;<a href="testdetails.html?testName=${test.name}">View
+						<td><c:out value="${testCase.name}" /></td>
+						<td><c:if test="${testCase.numberOfTrees == 1}">
+							Yes&nbsp;|&nbsp;<a
+									href="testdetails.html?reportName=${reportName}&testName=${testCase.name}">View
+									tree</a>
+							</c:if> <c:if test="${testCase.numberOfTrees != 1}">
+							No&nbsp;|&nbsp;<a
+									href="testdetails.html?reportName=${reportName}&testName=${testCase.name}">View
 									differences</a>
 							</c:if></td>
-
+						<td>${testCase.numberOfTrees}</td>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -83,6 +88,8 @@
 
 <content tag="local_script"> <script type="text/javascript">
 	$(document).ready(function() {
-		$('#testCases').DataTable();
+		$('#testCases').DataTable({
+			stateSave : true
+		});
 	});
 </script> </content>

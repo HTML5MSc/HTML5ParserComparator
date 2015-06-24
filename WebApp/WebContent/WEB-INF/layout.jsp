@@ -12,7 +12,9 @@
 	rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="${pageContext.request.contextPath}/css/blog-home.css"
+<link href="${pageContext.request.contextPath}/css/home.css"
+	rel="stylesheet">
+<link href="${pageContext.request.contextPath}/css/prettify.css"
 	rel="stylesheet">
 
 <!-- DataTables Bootstrap CSS -->
@@ -96,7 +98,10 @@
 		src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
 	<script
 		src="${pageContext.request.contextPath}/js/dataTables.bootstrap.js"></script>
-		
+	
+	<script
+		src="${pageContext.request.contextPath}/js/prettify.js"></script>
+
 	<sitemesh:write property="page.local_script" />
 
 </body>

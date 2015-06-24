@@ -13,4 +13,14 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 		<property name="prefix" value="/WEB-INF/views/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
+	<bean class="com.HTML5.ParserComparer.model.WebConfig">
+		<!--
+		<property name="bashScriptName" value="parser_runner_args.sh" />
+		<property name="bashScriptPath" value="/home/hs12/Compartida/" />
+		<property name="reportPath" value="/home/hs12/Compartida/" />
+		--> 
+		<property name="reportPath" value="A:/GitHub/HTML5ParserComparator/" /> 
+		<property name="bashScriptName" value="test.bat" /> 
+		<property name="bashScriptPath" value="A:/GitHub/HTML5ParserComparator/" /> 
+	</bean>
 </beans>

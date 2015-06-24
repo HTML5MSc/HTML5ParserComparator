@@ -11,3 +11,22 @@ body {
 footer {
     margin: 50px 0;
 }
+
+pre {
+	background-color: #FDFDFD; 
+	font-size: 16px;
+//	word-wrap: normal !important; //uncomment to enable scroll
+	max-height: 600px;
+}
+
+pre ins {
+	background-color: #A6F3A6; //#EAFFEA;
+}
+
+pre del {
+	background-color: #F8CBCB; //FFECEC;
+}
+
+//pre span {
+//	background-color: #EAFFEA;
+//}
