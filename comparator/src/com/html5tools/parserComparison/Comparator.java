@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,17 +39,40 @@ import org.xml.sax.SAXException;
  */
 public class Comparator {
 
-	public String run(String[] args) throws Exception {
+	private final static Logger LOG = Logger.getLogger(Comparator.class
+			.getName());
 
-		if (args.length % 2 != 0)
-			throw new Exception(
+	public String run(String testName, String reportFileName,
+			Map<String, String> outputTrees) {
+		List<OutputTree> trees = new ArrayList<OutputTree>();
+		for (String parserName : outputTrees.keySet()) {
+			trees.add(new OutputTree(outputTrees.get(parserName), parserName));
+		}
+		String[] parsers = new String[trees.size()];
+		parsers = outputTrees.keySet().toArray(parsers);
+
+		trees = groupByEquality(trees);
+		return run(testName, reportFileName, parsers, trees);
+
+	}
+
+	public String run(String[] args) throws IllegalArgumentException {
+
+		if (args.length == 0 || args.length % 2 != 0)
+			throw new IllegalArgumentException(
 					"Missing argument. Arguments must be the name test plus a set of pairs of output and the parser");
 
 		String[] parsers = getPasers(args);
 		List<OutputTree> trees = groupByEquality(args);
-		String reportFileName = args[1]; //"report.xml";
+		String reportFileName = args[1]; // "report.xml";
+		return run(args[0], reportFileName, parsers, trees);
 
-		Document report = createReport(args[0], parsers, trees,
+	}
+
+	private String run(String testName, String reportFileName,
+			String[] parsers, List<OutputTree> trees) {
+
+		Document report = createReport(testName, parsers, trees,
 				parseXmlFile(reportFileName));
 
 		StringWriter writer = new StringWriter();
@@ -82,13 +107,12 @@ public class Comparator {
 			System.out.println("File " + file
 					+ " not found. Creating new file...");
 		} catch (ParserConfigurationException | SAXException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	private String[] getPasers(String[] args) throws Exception {
+	private String[] getPasers(String[] args) {
 
 		String[] parsers = new String[(args.length - 2) / 2];
 
@@ -109,7 +133,21 @@ public class Comparator {
 		// return parsers;
 	}
 
-	private List<OutputTree> groupByEquality(String[] args) throws Exception {
+	private List<OutputTree> groupByEquality(List<OutputTree> trees) {
+
+		List<OutputTree> outputs = new ArrayList<OutputTree>();
+
+		for (OutputTree tree : trees) {
+			if (!outputs.contains(tree))
+				outputs.add(tree);
+			else
+				outputs.get(outputs.indexOf(tree)).addParser(
+						tree.getParsers().get(0));
+		}
+		return outputs;
+	}
+
+	private List<OutputTree> groupByEquality(String[] args) {
 
 		List<OutputTree> outputs = new ArrayList<OutputTree>();
 
