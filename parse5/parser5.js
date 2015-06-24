@@ -8,6 +8,9 @@ switch(process.argv[2]){
 	case '-s':
 		parseInput(process.argv[3]);
 		break;
+	case '-u':
+		parseURL(process.argv[3]);
+		break;
 	case '-f': 
 		//console.log('file');	
 		if(typeof(process.argv[3]) == 'undefined' || process.argv[3] === null){
@@ -23,6 +26,21 @@ switch(process.argv[2]){
 	default:
 		throw new Error('Invalid input argument');
 		break;
+}
+
+function parseURL(input){
+	var parse5 = require('parse5');
+	var parser = new parse5.Parser();
+
+	var request = require("request");
+	request({
+	  uri: input,
+	}, function(error, response, body) {
+		//console.log(body);
+		var document = parser.parse(body);
+		var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
+		console.log(html5libFormat);
+	});
 }
 
 function parseInput(input){
@@ -52,6 +70,9 @@ console.log(output);
 */
 
 var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
+
+if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
+    html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
 
 //Show the serialized DOM with HTML5Lib format
 console.log(html5libFormat);
