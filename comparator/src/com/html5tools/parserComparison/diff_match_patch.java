@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.HTML5.ParserComparer.model;
+package com.html5tools.parserComparison;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -1358,28 +1358,6 @@ public class diff_match_patch {
     }
     return html.toString();
   }
-  
-  public String diff_prettyHtml_Bootstrap(LinkedList<Diff> diffs) {
-	    StringBuilder html = new StringBuilder();
-	    for (Diff aDiff : diffs) {
-	      String text = aDiff.text.replace("&", "&amp;").replace("<", "&lt;")
-	          .replace(">", "&gt;"); //.replace("\n", "<br>");
-	      switch (aDiff.operation) {
-	      case INSERT:
-	        html.append("<ins class=\"text-inserted\">").append(text)
-	            .append("</ins>");
-	        break;
-	      case DELETE:
-	        html.append("<del class=\"text-deleted\">").append(text)
-	            .append("</del>");
-	        break;
-	      case EQUAL:
-	        html.append("<span>").append(text).append("</span>");
-	        break;
-	      }
-	    }
-	    return html.toString();
-	  }
 
   /**
    * Compute and return the source text (all equalities and deletions).
