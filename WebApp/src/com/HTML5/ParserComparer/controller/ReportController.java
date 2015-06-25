@@ -84,8 +84,7 @@ public class ReportController {
 		// // for testing purpose:
 		// System.out.println("value: " + parserInput.getValue());
 
-		String reportName = "report".concat(
-				Long.toString(System.currentTimeMillis())).concat(".xml");
+		String reportName = getReportName();
 		List<String> args = new ArrayList<String>();
 		args.add(webConfig.getBashScriptFullPath());
 		args.add("-n");
@@ -104,6 +103,12 @@ public class ReportController {
 		model.addAttribute("reportName", reportName);
 		model.addAttribute("report", report);
 		return "report";
+	}
+	
+	private String getReportName(){
+		return "reportString.xml";
+		//"report".concat(
+				//Long.toString(System.currentTimeMillis())).concat(".xml");
 	}
 
 	// private Report initializeReport() {

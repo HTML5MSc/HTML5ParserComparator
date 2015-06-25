@@ -19,10 +19,14 @@ pre {
 	max-height: 600px;
 }
 
-.text-inserted{
+pre ins {
 	background-color: #A6F3A6; //#EAFFEA;
 }
 
-.text-deleted{
+pre del {
 	background-color: #F8CBCB; //FFECEC;
 }
+
+//pre span {
+//	background-color: #EAFFEA;
+//}

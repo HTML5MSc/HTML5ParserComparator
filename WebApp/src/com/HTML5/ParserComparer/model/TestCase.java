@@ -39,8 +39,13 @@ public class TestCase {
 
 		private boolean majority;
 		private int editDistance;
-				private String tree;
+		private int deletions = 0;
+		private int insertions;
+		private int charDeletions;
+		private int charInsertions;
+		private String tree;
 		private ArrayList<String> parsers;
+		private ArrayList<Diff> diffs;
 
 		public TestOutput() {
 			super();
@@ -67,7 +72,39 @@ public class TestCase {
 		public void setEditDistance(int editDistance) {
 			this.editDistance = editDistance;
 		}
-		
+
+		public int getDeletions() {
+			return deletions;
+		}
+
+		public void setDeletions(int deletions) {
+			this.deletions = deletions;
+		}
+
+		public int getInsertions() {
+			return insertions;
+		}
+
+		public void setInsertions(int insertions) {
+			this.insertions = insertions;
+		}
+
+		public int getCharDeletions() {
+			return charDeletions;
+		}
+
+		public void setCharDeletions(int charDeletions) {
+			this.charDeletions = charDeletions;
+		}
+
+		public int getCharInsertions() {
+			return charInsertions;
+		}
+
+		public void setCharInsertions(int charInsertions) {
+			this.charInsertions = charInsertions;
+		}
+
 		public String getTree() {
 			return tree;
 		}
@@ -82,6 +119,51 @@ public class TestCase {
 
 		public void setParsers(ArrayList<String> parsers) {
 			this.parsers = parsers;
+		}
+
+		public ArrayList<Diff> getDiffs() {
+			return diffs;
+		}
+
+		public void setDiffs(ArrayList<Diff> diffs) {
+			this.diffs = diffs;
+		}
+	}
+
+	public class Diff {
+		private int index;
+		private String type;
+		private String content;
+
+		public Diff(int index, String type, String content) {
+			super();
+			this.index = index;
+			this.type = type;
+			this.content = content;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
+		public void setIndex(int index) {
+			this.index = index;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public void setType(String type) {
+			this.type = type;
+		}
+
+		public String getContent() {
+			return content;
+		}
+
+		public void setContent(String content) {
+			this.content = content;
 		}
 	}
 }

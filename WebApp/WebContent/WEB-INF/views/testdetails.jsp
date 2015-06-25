@@ -35,11 +35,19 @@
 				<tr>
 					<c:forEach var="output" items="${test.outputs}">
 						<td>
-						<!--?prettify lang=html linenums=true?-->
-						<pre style="width:${1200/fn:length(test.outputs)- 20}px"><c:out value="${output.tree}" escapeXml="false" /></pre>
+						<c:if test="${output.insertions > 0 || output.deletions > 0}">
+							<b>Insertions:</b>&nbsp;${output.insertions}&nbsp;(${output.charInsertions} chars)<br>
+							<b>Deletions:</b>&nbsp;${output.deletions}&nbsp;(${output.charDeletions} chars)
+						</c:if>
+						<c:if test="${output.insertions == 0 && output.deletions == 0}">
+							&nbsp;<br>&nbsp;
+						</c:if>
 						<c:if test="${output.editDistance > 0}">
 								<b>Edit distance:</b>&nbsp;${output.editDistance}
-						</c:if></td>
+						</c:if>
+						<!--?prettify lang=html linenums=true?-->
+						<pre style="width:${1200/fn:length(test.outputs)- 20}px"><c:out value="${output.tree}" escapeXml="false" /></pre>
+						</td>
 					</c:forEach>
 				</tr>
 			</tbody>

@@ -71,6 +71,9 @@ console.log(output);
 
 var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
 
+if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
+    html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
+
 //Show the serialized DOM with HTML5Lib format
 console.log(html5libFormat);
 
