@@ -1,12 +1,13 @@
 package com.HTML5.ParserComparer.model;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import com.HTML5.ParserComparer.model.TestCase.TestOutput;
 
 public class TestCaseGenerator {
 
@@ -28,8 +29,8 @@ public class TestCaseGenerator {
 
 				ArrayList<TestCase.TestOutput> outputs = new ArrayList<TestCase.TestOutput>();
 
+				String majorityTree = null;
 				xPathExpression += "/output";
-				String majorityTree = getMajorityTree(xPathExpression, document);
 				NodeList outputNodes = XMLUtils.executeXPathExpression(
 						document, xPathExpression);
 				for (int i = 0; i < outputNodes.getLength(); i++) {
@@ -53,19 +54,22 @@ public class TestCaseGenerator {
 					}
 
 					TestCase.TestOutput testOutput = testCase.new TestOutput();
-					testOutput.setParsers(parsers);
 					String tree = treeNode.getTextContent();
 					if (isMajority) {
 						testOutput.setTree(escapeStringToHTML(tree));
-						testOutput.setEditDistance(0);
+						majorityTree = tree;
+						// testOutput.setEditDistance(0);
 					} else {
 						// testOutput.setEditDistance(StringUtils
 						// .getLevenshteinDistance(majorityTree, tree));
-						testOutput.setEditDistance(0);
+						// testOutput.setEditDistance(0);
 
-						testOutput.setTree(getTreeWithDiffFormat(majorityTree,
-								tree));
+						testOutput = getFormattedTreeFromDiffsNode(
+								majorityTree,
+								XMLUtils.getFirstElementByTagName(treeNode,
+										"diffs"));
 					}
+					testOutput.setParsers(parsers);
 					outputs.add(testOutput);
 
 				}
@@ -76,30 +80,72 @@ public class TestCaseGenerator {
 		return testCase;
 	}
 
-	private static String getMajorityTree(String baseXPathExpression,
-			Document document) {
-		String majorityTree = null;
-		baseXPathExpression += "[@majority=\"true\"]/tree";
-		NodeList outputNodes = XMLUtils.executeXPathExpression(document,
-				baseXPathExpression);
-		for (int i = 0; i < outputNodes.getLength(); i++) {
-			Node outputNode = outputNodes.item(i);
-			majorityTree = outputNode.getTextContent();
-		}
-		return majorityTree;
-	}
+	private static TestOutput getFormattedTreeFromDiffsNode(
+			String majorityTree, Node diffsNode) {
+		StringBuilder reconstructedTree = new StringBuilder(majorityTree);
+		TestOutput testOutput = new TestCase().new TestOutput();
 
-	private static String getTreeWithDiffFormat(String string1, String string2) {
-		diff_match_patch dmp = new diff_match_patch();
-		LinkedList<diff_match_patch.Diff> diffs = dmp.diff_main(string1,
-				string2, false);
-		dmp.diff_cleanupMerge(diffs);
-		return dmp.diff_prettyHtml_Bootstrap(diffs);
+		int indexOffset = 0;
+		int deletions = 0;
+		int insertions = 0;
+		int charDeletions = 0;
+		int charInsertions = 0;
+
+		boolean first = true;
+		for (Element diff : XMLUtils.getElementsByTagName(diffsNode, "diff")) {
+		
+			int index = Integer.parseInt(diff.getAttribute("index"));
+			String type = diff.getAttribute("type");
+			String content = diff.getTextContent();
+			String newContent = null;
+			
+//			if(first)
+//				first = false;
+//			else
+//			{
+//				reconstructedTree.insert(reconstructedTree.indexOf("|", index), "</span>");
+//				indexOffset += 7;
+//			}
+
+			if (type.equals("I")) {
+				insertions++;
+				charInsertions += content.length();
+				newContent = "<ins>" + content + "</ins>";
+
+			} else if (type.equals("D")) {
+				reconstructedTree.delete(index + indexOffset, index
+						+ indexOffset + content.length());
+				deletions++;
+				charDeletions += content.length();
+				newContent = "<del>" + content + "</del>";
+
+			}
+			//reconstructedTree.insert(reconstructedTree.lastIndexOf("|", index - 10), "<span>");
+			reconstructedTree.insert(index + indexOffset, newContent);
+			//indexOffset += 6;
+			indexOffset += newContent.length() - content.length();
+		}
+		String tree = escapeStringToHTML(reconstructedTree.toString());
+		tree = unEscapeDiffTags(tree);
+		testOutput.setTree(tree);
+		testOutput.setCharDeletions(charDeletions);
+		testOutput.setCharInsertions(charInsertions);
+		testOutput.setDeletions(deletions);
+		testOutput.setInsertions(insertions);
+
+		return testOutput;
 	}
 
 	private static String escapeStringToHTML(String string) {
 		return string.replace("&", "&amp;").replace("<", "&lt;")
 				.replace(">", "&gt;");
 		// .replace("\n", "<br>");
+	}
+
+	private static String unEscapeDiffTags(String string) {
+		return string.replace("&lt;ins&gt;", "<ins>")
+				.replace("&lt;/ins&gt;", "</ins>")
+				.replace("&lt;del&gt;", "<del>")
+				.replace("&lt;/del&gt;", "</del>");
 	}
 }

@@ -17,15 +17,15 @@
 			<label class="control-label col-sm-2" for="inputType">Type of
 				input</label>
 			<div class="col-sm-2">
-				<form:select path="type" items="${inputTypeList}" id="inputType"
+				<form:select path="type" items="${inputTypeList}"
 					class="form-control input-small" />
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="control-label col-sm-2" for="value">Input:</label>
 			<div class="col-sm-10">
-				<form:input path="value" class="form-control" id="value"
-					placeholder="Insert the URL or string here" />
+				<form:textarea path="value" class="form-control"
+					placeholder="Insert the string here" rows="12" />
 			</div>
 		</div>
 		<div class="form-group">
@@ -38,3 +38,24 @@
 
 </body>
 </html>
+<content tag="local_script">
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#type').on('change', function() {
+			$('#value').removeAttr('placeholder');
+			$('#value').removeAttr('rows');
+			$('#value').removeAttr('style');
+			if($(this).val() == 'URL'){
+				$('#value').attr('placeholder','Insert the URL here');
+				$('#value').attr('rows','1');
+			}
+			else{
+				$('#value').attr('placeholder','Insert the string here');
+				$('#value').attr('rows','12');
+				
+			}
+		});
+		
+	});
+</script> 
+</content>
