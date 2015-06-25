@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -62,6 +64,26 @@ public class Comparator {
 
 	}
 
+	private final static Logger LOG = Logger.getLogger(Comparator.class
+			.getName());
+
+	public void run(String testName, String reportFileName,
+			Map<String, String> outputTrees) {
+
+		List<OutputTree> trees = new ArrayList<OutputTree>();
+		parserNames = new ArrayList<String>();
+
+		for (String parserName : outputTrees.keySet()) {
+			trees.add(new OutputTree(outputTrees.get(parserName), parserName));
+			parserNames.add(parserName);
+		}
+
+		trees = groupByEquality(trees);
+
+		run(reportFileName, testName, trees);
+
+	}
+
 	public void run(String[] args) throws Exception {
 
 		if (args.length != 1)
@@ -78,6 +100,11 @@ public class Comparator {
 		parserNames = getParserNames(root);
 		List<OutputTree> trees = groupByEquality(root);
 
+		run(reportFileName, testName, trees);
+	}
+
+	private void run(String reportFileName, String testName,
+			List<OutputTree> trees) {
 		try {
 			report = getDocument(reportFileName);
 		} catch (Exception e) {
@@ -97,6 +124,21 @@ public class Comparator {
 					.getNodeValue());
 
 		return parsers;
+	}
+
+	private List<OutputTree> groupByEquality(List<OutputTree> trees) {
+
+		List<OutputTree> outputs = new ArrayList<OutputTree>();
+
+		for (OutputTree tree : trees) {
+			if (!outputs.contains(tree))
+				outputs.add(tree);
+			else
+				outputs.get(outputs.indexOf(tree)).addParser(
+						tree.getParsers().get(0));
+		}
+		Collections.sort(outputs);
+		return outputs;
 	}
 
 	private List<OutputTree> groupByEquality(Node node) {
@@ -230,10 +272,10 @@ public class Comparator {
 		diff_match_patch dmp = new diff_match_patch();
 		LinkedList<diff_match_patch.Diff> diffs = dmp.diff_main(tree1, tree2,
 				false);
-		dmp.Diff_EditCost = 1;		
+		dmp.Diff_EditCost = 1;
 		dmp.diff_cleanupEfficiency(diffs);
-		//dmp.diff_cleanupSemantic(diffs);
-		//dmp.diff_cleanupMerge(diffs);
+		// dmp.diff_cleanupSemantic(diffs);
+		// dmp.diff_cleanupMerge(diffs);
 
 		int index = 0;
 		for (Diff diff : diffs) {
