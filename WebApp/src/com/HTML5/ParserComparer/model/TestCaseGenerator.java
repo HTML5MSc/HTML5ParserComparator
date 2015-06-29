@@ -1,6 +1,7 @@
 package com.HTML5.ParserComparer.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -8,12 +9,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.HTML5.ParserComparer.model.TestCase.TestOutput;
+import com.HTML5.ParserComparer.model.utils.FormattingUtils;
+import com.HTML5.ParserComparer.model.utils.XMLUtils;
 
 public class TestCaseGenerator {
 
-	// static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";
+	public static final String START_CODE_INS = "StartCodeIns";
+	public static final String END_CODE_INS = "EndCodeIns";
+	public static final String START_CODE_DEL = "StartCodeDel";
+	public static final String END_CODE_DEL = "EndCodeDel";
 
-	public static TestCase getTestCase(String filePath, String name) {
+	public static TestCase getTestCase(String filePath, String name,
+			FormatOptions formatOptions) {
 		TestCase testCase = new TestCase();
 		String xPathExpression = "/report/test[@name=\"" + name + "\"]";
 		Document document = XMLUtils.readXMLFromFile(filePath);
@@ -26,6 +33,11 @@ public class TestCaseGenerator {
 						.getNamedItem("numberOfTrees").getNodeValue();
 				testCase.setNumberOfTrees(Integer.parseInt(numberOfTrees));
 				testCase.setName(name);
+
+				ArrayList<Element> elements = XMLUtils.getElementsByTagName(
+						testNode, "input");
+				if (!elements.isEmpty())
+					testCase.setInput(elements.get(0).getTextContent());
 
 				ArrayList<TestCase.TestOutput> outputs = new ArrayList<TestCase.TestOutput>();
 
@@ -58,22 +70,20 @@ public class TestCaseGenerator {
 					if (isMajority) {
 						testOutput.setTree(escapeStringToHTML(tree));
 						majorityTree = tree;
-						// testOutput.setEditDistance(0);
 					} else {
 						// testOutput.setEditDistance(StringUtils
 						// .getLevenshteinDistance(majorityTree, tree));
-						// testOutput.setEditDistance(0);
 
 						testOutput = getFormattedTreeFromDiffsNode(
 								majorityTree,
 								XMLUtils.getFirstElementByTagName(treeNode,
-										"diffs"));
+										"diffs"), formatOptions);
 					}
 					testOutput.setParsers(parsers);
 					outputs.add(testOutput);
 
 				}
-
+				outputs = formatOutputs(outputs, formatOptions);
 				testCase.setOutputs(outputs);
 			}
 		}
@@ -81,52 +91,51 @@ public class TestCaseGenerator {
 	}
 
 	private static TestOutput getFormattedTreeFromDiffsNode(
-			String majorityTree, Node diffsNode) {
+			String majorityTree, Node diffsNode, FormatOptions formatOptions) {
 		StringBuilder reconstructedTree = new StringBuilder(majorityTree);
 		TestOutput testOutput = new TestCase().new TestOutput();
 
+		int index = 0;
 		int indexOffset = 0;
 		int deletions = 0;
 		int insertions = 0;
 		int charDeletions = 0;
 		int charInsertions = 0;
 
-		boolean first = true;
 		for (Element diff : XMLUtils.getElementsByTagName(diffsNode, "diff")) {
-		
-			int index = Integer.parseInt(diff.getAttribute("index"));
+
+			index = Integer.parseInt(diff.getAttribute("index"));
 			String type = diff.getAttribute("type");
 			String content = diff.getTextContent();
 			String newContent = null;
-			
-//			if(first)
-//				first = false;
-//			else
-//			{
-//				reconstructedTree.insert(reconstructedTree.indexOf("|", index), "</span>");
-//				indexOffset += 7;
-//			}
 
 			if (type.equals("I")) {
 				insertions++;
 				charInsertions += content.length();
-				newContent = "<ins>" + content + "</ins>";
+				newContent = START_CODE_INS + content + END_CODE_INS;
 
 			} else if (type.equals("D")) {
 				reconstructedTree.delete(index + indexOffset, index
 						+ indexOffset + content.length());
 				deletions++;
 				charDeletions += content.length();
-				newContent = "<del>" + content + "</del>";
-
+				newContent = START_CODE_DEL + content + END_CODE_DEL;
 			}
-			//reconstructedTree.insert(reconstructedTree.lastIndexOf("|", index - 10), "<span>");
+
 			reconstructedTree.insert(index + indexOffset, newContent);
-			//indexOffset += 6;
 			indexOffset += newContent.length() - content.length();
 		}
-		String tree = escapeStringToHTML(reconstructedTree.toString());
+
+		String tree;
+		if (formatOptions.isRemoveTextAfterLastDiff())
+			tree = reconstructedTree.substring(0,
+					reconstructedTree.indexOf("\n", index + indexOffset));
+		else
+			tree = reconstructedTree.toString();
+
+		tree = escapeStringToHTML(tree);
 		tree = unEscapeDiffTags(tree);
+		tree = FormattingUtils.formatTreeLines(tree);
 		testOutput.setTree(tree);
 		testOutput.setCharDeletions(charDeletions);
 		testOutput.setCharInsertions(charInsertions);
@@ -136,6 +145,43 @@ public class TestCaseGenerator {
 		return testOutput;
 	}
 
+	private static ArrayList<TestCase.TestOutput> formatOutputs(
+			ArrayList<TestCase.TestOutput> outputs, FormatOptions formatOptions) {
+		List<String> textsToRemove = getTextsToRemove(outputs.get(0).getTree(),
+				formatOptions);
+		for (String s : textsToRemove) {
+			boolean all = true;
+			for (TestCase.TestOutput output : outputs) {
+				all &= output.getTree().contains(s);
+			}
+
+			if (all) {
+				for (TestCase.TestOutput output : outputs) {
+					output.setTree(output.getTree().replace(s, ""));
+				}
+			}
+		}
+		return outputs;
+	}
+
+	private static List<String> getTextsToRemove(String majorityTree,
+			FormatOptions formatOptions) {
+		List<String> textsToRemove = new ArrayList<String>();
+		if (formatOptions.isRemoveComments()) {
+			textsToRemove.addAll(FormattingUtils.getSubStringsOf(majorityTree,
+					"&lt;!-- ", " --&gt;", true));
+		}
+		if (formatOptions.isRemoveStyleContent()) {
+			textsToRemove.addAll(FormattingUtils.getSubStringsOf(majorityTree,
+					"&lt;style&gt;"));
+		}
+		if (formatOptions.isRemoveScriptContent()) {
+			textsToRemove.addAll(FormattingUtils.getSubStringsOf(majorityTree,
+					"&lt;script&gt;"));
+		}
+		return textsToRemove;
+	}
+
 	private static String escapeStringToHTML(String string) {
 		return string.replace("&", "&amp;").replace("<", "&lt;")
 				.replace(">", "&gt;");
@@ -143,9 +189,10 @@ public class TestCaseGenerator {
 	}
 
 	private static String unEscapeDiffTags(String string) {
-		return string.replace("&lt;ins&gt;", "<ins>")
-				.replace("&lt;/ins&gt;", "</ins>")
-				.replace("&lt;del&gt;", "<del>")
-				.replace("&lt;/del&gt;", "</del>");
+		string = string.replace(START_CODE_INS, "<ins>")
+				.replace(END_CODE_INS, "</ins>")
+				.replace(START_CODE_DEL, "<del>")
+				.replace(END_CODE_DEL, "</del>");
+		return string;
 	}
 }
