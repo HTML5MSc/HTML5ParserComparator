@@ -1,4 +1,4 @@
-package com.HTML5.ParserComparer.model;
+package com.HTML5.ParserComparer.model.utils;
 
 import java.util.ArrayList;
 
@@ -48,26 +48,24 @@ public class XMLUtils {
 		return nodeList;
 	}
 
-	public static Element getFirstElementByTagName(Node node, String tagName) {
-		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-			Node n = node.getChildNodes().item(i);
-			if (n.getNodeType() == Node.ELEMENT_NODE
-					&& n.getNodeName().equals(tagName)) {
-				return (Element) n;
+	public static ArrayList<Element> getElementsByTagName(Node node,
+			String tagName) {
+		ArrayList<Element> elements = new ArrayList<Element>();
+		if (node.hasChildNodes())
+			for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+				Node n = node.getChildNodes().item(i);
+				if (n.getNodeType() == Node.ELEMENT_NODE
+						&& n.getNodeName().equals(tagName)) {
+					elements.add((Element) n);
+				}
 			}
-		}
-		return null;
+		return elements;
 	}
 	
-	public static ArrayList<Element> getElementsByTagName(Node node, String tagName) {
-		ArrayList<Element> elements = new ArrayList<Element>();
-		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-			Node n = node.getChildNodes().item(i);
-			if (n.getNodeType() == Node.ELEMENT_NODE
-					&& n.getNodeName().equals(tagName)) {
-				elements.add((Element) n);
-			}
-		}
-		return elements;
+	public static Element getFirstElementByTagName(Node node, String tagName) {
+		ArrayList<Element> elements = getElementsByTagName(node, tagName);
+		if (!elements.isEmpty())
+			return elements.get(0);
+		return null;
 	}
 }

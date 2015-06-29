@@ -10,6 +10,8 @@
 <!-- Bootstrap Core CSS -->
 <link href="${pageContext.request.contextPath}/css/bootstrap.min.css"
 	rel="stylesheet">
+<link href="${pageContext.request.contextPath}/css/font-awesome.min.css"
+	rel="stylesheet">
 
 <!-- Custom CSS -->
 <link href="${pageContext.request.contextPath}/css/home.css"
@@ -49,6 +51,7 @@
 			<div class="collapse navbar-collapse"
 				id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
+					<li><a href="inputform.html">Parse now!!!</a></li>
 					<li><a href="#">About</a></li>
 					<li><a href="#">Contact</a></li>
 				</ul>

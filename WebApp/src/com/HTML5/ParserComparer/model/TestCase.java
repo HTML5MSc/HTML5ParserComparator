@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class TestCase {
 	private String name;
+	private String input;
 	private int numberOfTrees;
 	private ArrayList<TestOutput> outputs;
 
@@ -17,6 +18,14 @@ public class TestCase {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getInput() {
+		return input;
+	}
+
+	public void setInput(String input) {
+		this.input = input;
 	}
 
 	public int getNumberOfTrees() {

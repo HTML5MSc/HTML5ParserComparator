@@ -6,6 +6,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.HTML5.ParserComparer.model.utils.XMLUtils;
+
 public class ReportGenerator {
 
 	//static String filePath = "A:\\GitHub\\HTML5ParserComparator\\report.xml";

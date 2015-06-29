@@ -12,13 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.HTML5.ParserComparer.model.FormatOptions;
 import com.HTML5.ParserComparer.model.ParserInput;
-import com.HTML5.ParserComparer.model.ProcessRunner;
 import com.HTML5.ParserComparer.model.Report;
 import com.HTML5.ParserComparer.model.ReportGenerator;
 import com.HTML5.ParserComparer.model.TestCase;
 import com.HTML5.ParserComparer.model.TestCaseGenerator;
 import com.HTML5.ParserComparer.model.WebConfig;
+import com.HTML5.ParserComparer.model.utils.IOUtils;
+import com.HTML5.ParserComparer.model.utils.ProcessRunner;
 
 @Controller
 public class ReportController {
@@ -48,20 +50,36 @@ public class ReportController {
 		return "report";
 	}
 
-
-	@RequestMapping("/testdetails")
+	@RequestMapping(value = "/testdetails", method = RequestMethod.GET)
 	public String testDetails(
 			Model model,
 			@RequestParam(value = "reportName", required = true) String reportName,
 			@RequestParam(value = "testName", required = false) String testName) {
 		// Test test = initializeTest();
+		FormatOptions formatOptions = new FormatOptions();
 		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
-				.getReportPath().concat(reportName), testName);
+				.getReportPath().concat(reportName), testName, formatOptions);		
+		model.addAttribute(formatOptions);
 		model.addAttribute("reportName", reportName);
+		model.addAttribute("testName", testName);
 		model.addAttribute("test", testCase);
 		return "testdetails";
 	}
 
+	@RequestMapping(value = "/testdetails", method = RequestMethod.POST)
+	public String formatTestOutputs( @ModelAttribute("formatOptions") FormatOptions formatOptions,
+			Model model, @RequestParam(value = "reportName") String reportName,
+			@RequestParam(value = "testName") String testName){
+		
+		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
+				.getReportPath().concat(reportName), testName, formatOptions);
+		model.addAttribute(formatOptions);
+		model.addAttribute("reportName", reportName);
+		model.addAttribute("testName", testName);
+		model.addAttribute("test", testCase);
+		return "testdetails";
+	}
+	
 	@RequestMapping(value = "/inputform", method = RequestMethod.GET)
 	public String viewParserForm(Model model) {
 		ParserInput parserInput = new ParserInput();
@@ -84,18 +102,35 @@ public class ReportController {
 		// // for testing purpose:
 		// System.out.println("value: " + parserInput.getValue());
 
+		String fileName = null;
 		String reportName = getReportName();
 		List<String> args = new ArrayList<String>();
 		args.add(webConfig.getBashScriptFullPath());
-		args.add("-n");
+		args.add("test".concat(Long.toString(System.currentTimeMillis())));
 		args.add(webConfig.getReportPath().concat(reportName));
-		args.add(parserInput.getTypeParameter());
-		args.add(parserInput.getValue());
+
+		if (parserInput.getTypeParameter().equals("-s")) {
+			args.add("-f");
+			fileName = "input"
+					.concat(Long.toString(System.currentTimeMillis())).concat(
+							".txt");
+			IOUtils.saveFile(webConfig.getBashScriptPath().concat(fileName),
+					parserInput.getValue());
+			args.add(fileName);
+		} else {
+			args.add(parserInput.getTypeParameter());
+			args.add(parserInput.getValue());
+		}
+
 		try {
-			ProcessRunner.run(args);
+			ProcessRunner.run(args, webConfig.getBashScriptPath());
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (fileName != null)
+				IOUtils.deleteFile(webConfig.getBashScriptPath().concat(
+						fileName));
 		}
 
 		Report report = ReportGenerator.getReport(webConfig.getReportPath()
@@ -104,11 +139,11 @@ public class ReportController {
 		model.addAttribute("report", report);
 		return "report";
 	}
-	
-	private String getReportName(){
+
+	private String getReportName() {
 		return "reportString.xml";
-		//"report".concat(
-				//Long.toString(System.currentTimeMillis())).concat(".xml");
+		// "report".concat(
+		// Long.toString(System.currentTimeMillis())).concat(".xml");
 	}
 
 	// private Report initializeReport() {

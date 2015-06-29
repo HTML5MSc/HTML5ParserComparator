@@ -1,6 +1,7 @@
-package com.HTML5.ParserComparer.model;
+package com.HTML5.ParserComparer.model.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -8,15 +9,15 @@ import java.util.List;
 
 public class ProcessRunner {
 
-	public static void run(List<String> args) throws IOException,
+	public static void run(List<String> args, String directory) throws IOException,
 			InterruptedException {
-		run(args, true);
+		run(args, directory, true);
 	}
 
-	public static void run(List<String> args, boolean waitForCompletion)
+	public static void run(List<String> args, String directory, boolean waitForCompletion)
 			throws IOException, InterruptedException {
 		System.out.println("Process started");
-		Process process = new ProcessBuilder(args).start();
+		Process process = new ProcessBuilder(args).directory(new File(directory)).start();
 		if (waitForCompletion) {
 			int errCode = process.waitFor();
 			System.out

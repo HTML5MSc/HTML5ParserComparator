@@ -15,18 +15,22 @@ footer {
 pre {
 	background-color: #FDFDFD; 
 	font-size: 16px;
-//	word-wrap: normal !important; //uncomment to enable scroll
+//	word-wrap: normal !important; //comment to disable scroll
 	max-height: 600px;
 }
 
 pre ins {
-	background-color: #A6F3A6; //#EAFFEA;
+	background-color: #A6F3A6;
 }
 
 pre del {
-	background-color: #F8CBCB; //FFECEC;
+	background-color: #F8CBCB;
 }
 
-//pre span {
-//	background-color: #EAFFEA;
-//}
+.line_ins {
+	background-color: #EAFFEA;
+}
+
+.line_del {
+	background-color: #FFECEC;
+}
