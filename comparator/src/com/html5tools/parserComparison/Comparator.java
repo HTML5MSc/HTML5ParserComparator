@@ -48,6 +48,7 @@ import com.html5tools.parserComparison.diff_match_patch.Operation;
  */
 public class Comparator {
 
+
 	Document report;
 	List<String> parserNames;
 

@@ -1,3 +1,4 @@
+*report.xml
 *.class
 
 # Mobile Tools for Java (J2ME)
@@ -21,3 +22,10 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+
+#eclipse
+*.classpath
+*.project
+**/.settings/
+
+
