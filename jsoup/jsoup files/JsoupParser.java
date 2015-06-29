@@ -65,6 +65,7 @@ public class JsoupParser {
 			String line;
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
+				sb.append(System.getProperty("line.separator"));
 			}
 			br.close();
 		} catch (IOException e) {
