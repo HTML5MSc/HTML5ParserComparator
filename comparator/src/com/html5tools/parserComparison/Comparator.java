@@ -97,21 +97,31 @@ public class Comparator {
 		String reportFileName = root.getAttributes().getNamedItem("report")
 				.getNodeValue();
 
+		String input = "";
+		ArrayList<Element> elements = getElementsByTagName(root, "input");
+		if (!elements.isEmpty())
+			input = elements.get(0).getTextContent();
+
 		parserNames = getParserNames(root);
 		List<OutputTree> trees = groupByEquality(root);
 
-		run(reportFileName, testName, trees);
+		run(reportFileName, testName, trees, input);
 	}
 
 	private void run(String reportFileName, String testName,
 			List<OutputTree> trees) {
+		run(reportFileName, testName, trees, "");
+	}
+
+	private void run(String reportFileName, String testName,
+			List<OutputTree> trees, String input) {
 		try {
 			report = getDocument(reportFileName);
 		} catch (Exception e) {
 			createReport();
 		}
 
-		updateReport(testName, trees);
+		updateReport(testName, trees, input);
 
 		saveReportToFile(reportFileName);
 	}
@@ -221,7 +231,8 @@ public class Comparator {
 		}
 	}
 
-	private void updateReport(String testName, List<OutputTree> trees) {
+	private void updateReport(String testName, List<OutputTree> trees,
+			String inputValue) {
 
 		Node root = report.getElementsByTagName("report").item(0);
 		Node totals = report.getElementsByTagName("generalData").item(0);
@@ -230,6 +241,9 @@ public class Comparator {
 		Node test = addNode(root, "test");
 		addAttribute(test, "name", testName);
 		addAttribute(test, "numberOfTrees", String.valueOf(trees.size()));
+
+		Node input = addNode(test, "input");
+		addCDATA(input, inputValue);
 
 		if (trees.size() == 1)
 			incrementAttributeValue(totals, "equals");
