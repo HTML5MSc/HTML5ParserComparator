@@ -63,16 +63,17 @@ public class JsoupParser {
 		try {
 			br = new BufferedReader(new FileReader(path));
 			String line;
-			while ((line = br.readLine()) != null) {
+			if((line = br.readLine()) != null)
 				sb.append(line);
+			while ((line = br.readLine()) != null) {
 				sb.append(System.getProperty("line.separator"));
+				sb.append(line);
 			}
 			br.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return sb.toString();
 	}
 }
