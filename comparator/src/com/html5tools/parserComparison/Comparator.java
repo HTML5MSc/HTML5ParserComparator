@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 import com.html5tools.parserComparison.diff_match_patch.Diff;
 import com.html5tools.parserComparison.diff_match_patch.Operation;
 import com.html5tools.parserComparison.report.Report;
+import com.html5tools.parserComparison.report.impl.PartitionedReport;
 import com.html5tools.parserComparison.report.impl.SingleReport;
 
 /**
@@ -90,7 +91,7 @@ public class Comparator {
 
 	private void run(String reportFileName, String testName,
 			List<OutputTree> trees, List<String> successfulParsers) {
-		saveToReport(reportFileName, testName, trees, successfulParsers, "");
+		saveToReport(reportFileName, testName, trees, successfulParsers, "", false);
 	}
 
 	public void run(String[] args) throws Exception {
@@ -114,7 +115,7 @@ public class Comparator {
 		parserNames = getParserNames(root);
 		List<OutputTree> trees = groupByEquality(root);
 		List<String> successfulParsers = getParsersInMajority(trees);
-		saveToReport(reportFileName, testName, trees, successfulParsers, input);
+		saveToReport(reportFileName, testName, trees, successfulParsers, input, true);
 	}
 
 	private List<String> getParsersInMajority(List<OutputTree> trees) {
@@ -132,13 +133,15 @@ public class Comparator {
 		}
 		return parsersInMajority;
 	}
-
+	
 	private void saveToReport(String reportFileName, String testName,
-			List<OutputTree> trees, List<String> successfulParsers, String input) {
+			List<OutputTree> trees, List<String> successfulParsers, String input, boolean singleReport) {
 		try {
-			report = new SingleReport(reportFileName,parserNames);
+			if(singleReport) report = new SingleReport(reportFileName,parserNames);
+			else report = new PartitionedReport(reportFileName,parserNames);
 		} catch (FileNotFoundException e) {
-			report = new SingleReport(parserNames);
+			if(singleReport) report = new SingleReport(parserNames);
+			else report = new PartitionedReport(parserNames);
 		} catch (SAXException | IOException e) {
 			e.printStackTrace();
 			return;// Do not continue

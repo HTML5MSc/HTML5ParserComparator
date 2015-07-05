@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,8 +31,6 @@ import com.html5tools.parserComparison.diff_match_patch.Operation;
 import com.html5tools.parserComparison.report.Report;
 
 public class SingleReport extends Report {
-
-	private List<String> parserNames;
 
 	public SingleReport(List<String> parserNames) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -141,31 +136,7 @@ public class SingleReport extends Report {
 		}
 	}
 
-	private void appendTotalsTags() {
-
-		Node root = report.getFirstChild();
-		Node totals = addNode(root, "generalData");
-
-		addAttribute(totals, "numberOfTests", "0");
-		addAttribute(totals, "equals", "0");
-		addAttribute(totals, "different", "0");
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		addAttribute(totals, "date", dateFormat.format(new Date()));
-	}
-
-	private void appendParserInfoTags() {
-
-		Node root = report.getFirstChild();
-		Node testResult = addNode(root, "testResult");
-
-		for (String parser : parserNames) {
-			Node parserNode = addNode(testResult, "parser");
-
-			addAttribute(parserNode, "name", parser);
-			addAttribute(parserNode, "passed", "0");
-			addAttribute(parserNode, "failed", "0");
-		}
-	}
+	
 
 	private Node getDiffsNode(String tree1, String tree2) {
 		Node diffsNode = report.createElement("diffs");
@@ -196,9 +167,9 @@ public class SingleReport extends Report {
 		return diffsNode;
 	}
 
-	private void updateTestResults(List<String> parsersInMajority) {
+	private void updateTestResults(List<String> successfulParsers) {
 
-		for (String parserName : parsersInMajority) {
+		for (String parserName : successfulParsers) {
 
 			String xPathExp = "/report/testResult/*[@name='" + parserName
 					+ "']";
@@ -207,7 +178,7 @@ public class SingleReport extends Report {
 				incrementAttributeValue(parserNodeInTestResult, "passed");
 		}
 		List<String> failingParsers = new ArrayList<String>(parserNames);
-		failingParsers.removeAll(parsersInMajority);
+		failingParsers.removeAll(successfulParsers);
 
 		for (String parserName : failingParsers) {
 

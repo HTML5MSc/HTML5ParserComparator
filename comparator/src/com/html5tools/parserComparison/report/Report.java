@@ -1,5 +1,8 @@
 package com.html5tools.parserComparison.report;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.xpath.XPath;
@@ -18,6 +21,9 @@ import com.html5tools.parserComparison.OutputTree;
 public abstract class Report {
 	
 	protected Document report;
+	protected List<String> parserNames;
+	
+	protected Report(){};
 	
 	public abstract void updateReport(String testName, List<OutputTree> trees,
 			List<String> successfulParsers, String inputValue);
@@ -31,9 +37,13 @@ public abstract class Report {
 	}
 	
 	protected void incrementAttributeValue(Node node, String attName) {
+		incrementAttributeValue(node, attName, 1);
+	}
+	
+	protected void incrementAttributeValue(Node node, String attName, int value) {
 		Node attr = node.getAttributes().getNamedItem(attName);
 		String attValue = String
-				.valueOf(Integer.parseInt(attr.getNodeValue()) + 1);
+				.valueOf(Integer.parseInt(attr.getNodeValue()) + value);
 		attr.setNodeValue(attValue);
 	}
 	
@@ -57,9 +67,38 @@ public abstract class Report {
 			expr = xpath.compile(expression);
 			node = (Node) expr.evaluate(report, XPathConstants.NODE);
 		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return node;
+	}
+	
+	protected void appendTotalsTags() {
+
+		Node root = report.getFirstChild();
+		Node totals = addNode(root, "generalData");
+
+		addAttribute(totals, "numberOfTests", "0");
+		addAttribute(totals, "equals", "0");
+		addAttribute(totals, "different", "0");
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		addAttribute(totals, "date", dateFormat.format(new Date()));
+	}
+
+	protected void appendParserInfoTags() {
+
+		Node root = report.getFirstChild();
+		Node testResult = addNode(root, "testResult");
+
+		for (String parser : parserNames) {
+			Node parserNode = addNode(testResult, "parser");
+
+			addAttribute(parserNode, "name", parser);
+			addAttribute(parserNode, "passed", "0");
+			addAttribute(parserNode, "failed", "0");
+		}
+	}
+	
+	public Document getReportDocument(){
+		return report;
 	}
 }
