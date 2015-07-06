@@ -7,41 +7,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Attr;
-import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.html5tools.parserComparison.diff_match_patch.Diff;
-import com.html5tools.parserComparison.diff_match_patch.Operation;
 import com.html5tools.parserComparison.report.Report;
 import com.html5tools.parserComparison.report.impl.PartitionedReport;
 import com.html5tools.parserComparison.report.impl.SingleReport;
@@ -68,8 +47,8 @@ public class Comparator {
 
 	}
 
-	private final static Logger LOG = Logger.getLogger(Comparator.class
-			.getName());
+//	private final static Logger LOG = Logger.getLogger(Comparator.class
+//			.getName());
 
 	public void run(String testName, String reportFileName,
 			Map<String, String> outputTrees) {
@@ -91,7 +70,8 @@ public class Comparator {
 
 	private void run(String reportFileName, String testName,
 			List<OutputTree> trees, List<String> successfulParsers) {
-		saveToReport(reportFileName, testName, trees, successfulParsers, "", false);
+		saveToReport(reportFileName, testName, trees, successfulParsers, "",
+				false);
 	}
 
 	public void run(String[] args) throws Exception {
@@ -115,33 +95,60 @@ public class Comparator {
 		parserNames = getParserNames(root);
 		List<OutputTree> trees = groupByEquality(root);
 		List<String> successfulParsers = getParsersInMajority(trees);
-		saveToReport(reportFileName, testName, trees, successfulParsers, input, true);
+		saveToReport(reportFileName, testName, trees, successfulParsers, input,
+				true);
 	}
 
 	private List<String> getParsersInMajority(List<OutputTree> trees) {
-		// The tree is ordered so the majority parsers are of those from the
-		// first tree
-		List<String> parsersInMajority = trees.get(0).getParsers();
 
-		// Update results due to majority
-
-		// is majority? more than the half of total trees
-		// ACCORDING to boyer-moore majority vote algorithm
-		double halfNoOfPasers = parserNames.size() / 2;
-		if (parsersInMajority.size() <= halfNoOfPasers) {
-			return new ArrayList<String>();//No parser passed
+		// Don't count the parsers with error in their parsing
+		// Outputs with error starts with ERROR: {details}
+		int parserWithErrors = 0;
+		List<List<String>> parsersList = new ArrayList<List<String>>();
+		for (OutputTree tree : trees) {
+			if (!tree.getTree().startsWith("ERROR")) {
+				parsersList.add(tree.getParsers());
+			} else {
+				parserWithErrors++;
+			}
 		}
-		return parsersInMajority;
+
+		// No trees were produced, thus no majority
+		if (parsersList.isEmpty())
+			return new ArrayList<String>();
+
+		// if more the one tree was produced and the highest(they are ordered)
+		// is equal to the next one, then there is no majority
+		if (parsersList.size() != 1
+				&& (parsersList.get(0).size() <= parsersList.get(1).size())) {
+			return new ArrayList<String>();
+		}
+
+		List<String> majority = parsersList.get(0);
+		
+		// is majority if more than the half of total trees
+		// ACCORDING to boyer-moore majority vote algorithm
+		double halfNoOfPasers = (parserNames.size() - parserWithErrors) / 2;
+		if (majority.size() <= halfNoOfPasers) {
+			return new ArrayList<String>();// No parser passed
+		}
+
+		return majority;
 	}
-	
+
 	private void saveToReport(String reportFileName, String testName,
-			List<OutputTree> trees, List<String> successfulParsers, String input, boolean singleReport) {
+			List<OutputTree> trees, List<String> successfulParsers,
+			String input, boolean singleReport) {
 		try {
-			if(singleReport) report = new SingleReport(reportFileName,parserNames);
-			else report = new PartitionedReport(reportFileName,parserNames);
+			if (singleReport)
+				report = new SingleReport(reportFileName, parserNames);
+			else
+				report = new PartitionedReport(reportFileName, parserNames);
 		} catch (FileNotFoundException e) {
-			if(singleReport) report = new SingleReport(parserNames);
-			else report = new PartitionedReport(parserNames);
+			if (singleReport)
+				report = new SingleReport(parserNames);
+			else
+				report = new PartitionedReport(parserNames);
 		} catch (SAXException | IOException e) {
 			e.printStackTrace();
 			return;// Do not continue

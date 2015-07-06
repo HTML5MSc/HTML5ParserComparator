@@ -1,10 +1,6 @@
 package com.html5tools.commoncrawl;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -25,7 +21,7 @@ public class ParserRunner {
 	private final static Logger LOG = Logger.getLogger(ParserRunner.class
 			.getName());
 	private static final String WORKING_PATH = "/home/jose/HTML5ParserComparator/";
-	private static final long TIMEOUT = 10000;
+	private static final long TIMEOUT = 30000;
 
 	// private final List<ParserRun> parsers = new ArrayList<ParserRun>();
 
