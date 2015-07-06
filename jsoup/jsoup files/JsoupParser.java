@@ -54,7 +54,9 @@ public class JsoupParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(Html5libSerializer.dom2string(doc));
+		String output = Html5libSerializer.dom2string(doc);
+		output = output.replace("]]>", "]] >");
+		System.out.println(output);
 	}
 
 	private static String readFile(String path) {

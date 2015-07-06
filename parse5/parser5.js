@@ -12,12 +12,10 @@ switch(process.argv[2]){
 		parseURL(process.argv[3]);
 		break;
 	case '-f': 
-		//console.log('file');	
 		if(typeof(process.argv[3]) == 'undefined' || process.argv[3] === null){
 			throw new Error('Empty file path argument');
 		}
-		fs.readFile(process.argv[3], 'utf8', function (err,data){
-			
+		fs.readFile(process.argv[3], 'utf8', function (err,data){			
 			if (err) throw err;
 			parseInput(data.replace(/\n$/, ''));
 		});
@@ -29,64 +27,56 @@ switch(process.argv[2]){
 }
 
 function parseURL(input){
+	if(typeof(input) == 'undefined' || input === null){
+		throw new Error('Empty input argument');
+	}		
+	var request = require("request");
 	var parse5 = require('parse5');
 	var parser = new parse5.Parser();
-
-	var request = require("request");
+	
 	request({
-	  uri: input,
+	  uri: process.argv[2],
 	}, function(error, response, body) {
-		//console.log(body);
-		var document = parser.parse(body);
+		var document = parser.parse(body);	
 		var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
+
+		if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
+			html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
+
+		html5libFormat = replaceAll(html5libFormat, "]]>", "]] >");
 		console.log(html5libFormat);
 	});
 }
 
-function parseInput(input){
+function parseInput(input){	
+	if(typeof(input) == 'undefined' || input === null){
+		throw new Error('Empty input argument');
+	}
 
-//console.log(input);
-if(typeof(input) == 'undefined' || input === null){
-	throw new Error('Empty input argument');
-}
+	var parse5 = require('parse5');
+	var parser = new parse5.Parser();
+	var document = parser.parse(input);	
+	var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
 
-//Instantiate parser
-var parser = new Parser();
+	if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
+		html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
 
-//Then feed it with an HTML document
-var document = parser.parse(input);
+	html5libFormat = replaceAll(html5libFormat, "]]>", "]] >");
+	console.log(html5libFormat);
 
-var parse5 =  require('parse5');
-
-//Instantiate new serializer with default tree adapter
-var serializer1 = new parse5.Serializer();
-
-/*
-//Serialize document
-var output = serializer1.serialize(document);
-
-//Show the serialized DOM
-console.log(output);
-*/
-
-var html5libFormat = serializeToTestDataFormat(document, parse5.TreeAdapters.default);
-
-if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
-    html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
-
-//Show the serialized DOM with HTML5Lib format
-console.log(html5libFormat);
-
-/*
-//Write the output file
-fs.writeFile('output.txt', html5libFormat, function(err){
-	if (err) throw err;
-	console.log('It\'s saved!');
-});
-*/
+	/*
+	//Write the output file
+	fs.writeFile('output.txt', html5libFormat, function(err){
+		if (err) throw err;
+		console.log('It\'s saved!');
+	});
+	*/
 
 };
 
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
 
 
 // The next function was taken from the test_utils.js file of the parse5 source code. 
