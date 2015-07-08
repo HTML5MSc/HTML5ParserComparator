@@ -31,7 +31,7 @@ import com.html5tools.parserComparison.report.Report;
 public class PartitionedReport extends Report {
 	
 	//50 mb
-	final static long PARTITION_DESIRED_SIZE =  5120000;
+	final static long PARTITION_DESIRED_SIZE =  51200000;
 	
 	List<Report> children;
 	Report part;
