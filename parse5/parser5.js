@@ -42,8 +42,7 @@ function parseURL(input){
 
 		if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
 			html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
-
-		html5libFormat = replaceAll(html5libFormat, "]]>", "]] >");
+		
 		console.log(html5libFormat);
 	});
 }
@@ -60,8 +59,7 @@ function parseInput(input){
 
 	if(html5libFormat.charAt(html5libFormat.length - 1) == '\n') 
 		html5libFormat = html5libFormat.substring(0, html5libFormat.length - 1);
-
-	html5libFormat = replaceAll(html5libFormat, "]]>", "]] >");
+	
 	console.log(html5libFormat);
 
 	/*
@@ -73,11 +71,6 @@ function parseInput(input){
 	*/
 
 };
-
-function replaceAll(str, find, replace) {
-  return str.replace(new RegExp(find, 'g'), replace);
-}
-
 
 // The next function was taken from the test_utils.js file of the parse5 source code. 
 // Some constants were replaced to avoid dependency with html.js
