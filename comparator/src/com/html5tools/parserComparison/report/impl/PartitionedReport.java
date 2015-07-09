@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,13 +28,13 @@ import com.html5tools.parserComparison.OutputTree;
 import com.html5tools.parserComparison.report.Report;
 
 public class PartitionedReport extends Report {
-	
-	//50 mb
-	final static long PARTITION_DESIRED_SIZE =  5120000;
-	
+
+	// 50 mb
+	final static long PARTITION_DESIRED_SIZE = 5120000;
+
 	List<Report> children;
 	Report part;
-	
+
 	public PartitionedReport(List<String> parserNames) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
@@ -52,7 +51,7 @@ public class PartitionedReport extends Report {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public PartitionedReport(String fileName, List<String> parserNames)
 			throws SAXException, IOException {
 		DocumentBuilderFactory dbf;
@@ -77,7 +76,7 @@ public class PartitionedReport extends Report {
 	private Report getPart(String filename) {
 		String partFileName = getPartFileName(filename);
 		try {
-			return new SingleReport(partFileName,parserNames);
+			return new SingleReport(partFileName, parserNames);
 		} catch (FileNotFoundException e) {
 			return new SingleReport(parserNames);
 		} catch (SAXException | IOException e) {
@@ -87,12 +86,12 @@ public class PartitionedReport extends Report {
 	}
 
 	@Override
-	public void updateReport(String testName, List<OutputTree> trees,
-			List<String> successfulParsers, String inputValue) {
-		part.updateReport(testName, trees, successfulParsers, inputValue);
-		
+	public void updateReport(String folderPath, String testName,
+			List<OutputTree> trees) {
+		part.updateReport(folderPath, testName, trees);
+
 		Node totals = report.getElementsByTagName("generalData").item(0);
-		
+
 		incrementAttributeValue(totals, "numberOfTests");
 
 		if (trees.size() == 1)
@@ -100,44 +99,19 @@ public class PartitionedReport extends Report {
 		else
 			incrementAttributeValue(totals, "different");
 
-		updateTestResults(successfulParsers);
-		
 	}
 
-	private void updateTestResults(List<String> successfulParsers) {
-
-		for (String parserName : successfulParsers) {
-
-			String xPathExp = "/report/testResult/*[@name='" + parserName
-					+ "']";
-			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
-			if (parserNodeInTestResult != null)
-				incrementAttributeValue(parserNodeInTestResult, "passed");
-		}
-		List<String> failingParsers = new ArrayList<String>(parserNames);
-		failingParsers.removeAll(successfulParsers);
-
-		for (String parserName : failingParsers) {
-
-			String xPathExp = "/report/testResult/*[@name='" + parserName
-					+ "']";
-			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
-			if (parserNodeInTestResult != null)
-				incrementAttributeValue(parserNodeInTestResult, "failed");
-		}
-	}
-	
 	@Override
 	public void saveReportToFile(String reportFileName) {
-		//Save part first
-		
-		String partFileName  = getPartFileName(reportFileName);
+		// Save part first
+
+		String partFileName = getPartFileName(reportFileName);
 		part.saveReportToFile(partFileName);
-		
-		//append part reference into parent
+
+		// append part reference into parent
 		appendSubReport(partFileName, part.getReportDocument());
-		
-		//Save parent
+
+		// Save parent
 		File output = new File(reportFileName);
 		StreamResult resultFile = new StreamResult(output);
 
@@ -154,67 +128,70 @@ public class PartitionedReport extends Report {
 		} catch (TransformerException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private String getPartFileName(String reportFileName) {
-		
+
 		String xPathExp = "/report/subreports/subreport[last()]";
 		Node node = executeXPathExpression(xPathExp);
-		
-		//No parts, create new one
-		if(node==null){
+
+		// No parts, create new one
+		if (node == null) {
 			return reportFileName.replaceFirst(".xml", "_part1.xml");
 		}
-		
-		String partFileName = node.getAttributes().getNamedItem("file").getNodeValue();
-		
-		//Create new part if the previous is too big
+
+		String partFileName = node.getAttributes().getNamedItem("file")
+				.getNodeValue();
+
+		// Create new part if the previous is too big
 		File partFile = new File(partFileName);
-		if(partFile.length() > PARTITION_DESIRED_SIZE){
-			int currentCount = new Integer(partFileName.substring(partFileName.lastIndexOf("_part")+5, partFileName.lastIndexOf(".xml")));
-			return reportFileName.replaceFirst(".xml", "_part"+(currentCount+1)+".xml");
+		if (partFile.length() > PARTITION_DESIRED_SIZE) {
+			int currentCount = new Integer(partFileName.substring(
+					partFileName.lastIndexOf("_part") + 5,
+					partFileName.lastIndexOf(".xml")));
+			return reportFileName.replaceFirst(".xml", "_part"
+					+ (currentCount + 1) + ".xml");
 		}
-		
+
 		return partFileName;
-		
-		
+
 	}
-	
+
 	private void appendSubReports() {
 		Node root = report.getFirstChild();
 		addNode(root, "subreports");
 	}
-	
+
 	private void appendSubReport(String filename, Document partDoc) {
 
 		Node subreports = report.getElementsByTagName("subreports").item(0);
-		
-		String xPathExp = "report/subreports/subreport[@file='"+filename+"']";
+
+		String xPathExp = "report/subreports/subreport[@file='" + filename
+				+ "']";
 		Node subreport = executeXPathExpression(xPathExp);
-		
-		//No existing node, create new one
-		if(subreport==null){
+
+		// No existing node, create new one
+		if (subreport == null) {
 			subreport = addNode(subreports, "subreport");
 			addAttribute(subreport, "file", filename);
-		}else{
-			//remove old content
-			while(subreport.getChildNodes().getLength()>0){
+		} else {
+			// remove old content
+			while (subreport.getChildNodes().getLength() > 0) {
 				subreport.removeChild(subreport.getChildNodes().item(0));
 			}
 		}
-		
-		//add updated content
+
+		// add updated content
 		Node gd = partDoc.getElementsByTagName("generalData").item(0);
-		Node tr =partDoc.getElementsByTagName("testResult").item(0);
-		
+		Node tr = partDoc.getElementsByTagName("testResult").item(0);
+
 		gd = report.importNode(gd, true);
 		tr = report.importNode(tr, true);
-		
+
 		subreport.appendChild(gd);
 		subreport.appendChild(tr);
 
 	}
-	
 
 }
