@@ -4,12 +4,16 @@
 
 <html>
 <head>
-<title>HTML5 report</title>
+<title>HTML5 multi-parse</title>
 </head>
 <body>
 
-	<a href="index.html">Main Men&uacute;</a>
-
+	<h1 class="page-header">
+		<small>Multi-parse tool</small>
+	</h1>
+	<c:if test="${not empty error}">
+		<p class="text-danger">${error}</p>
+	</c:if>
 	<form:form method="POST" action="inputform.html"
 		commandName="parserInput" class="form-horizontal" role="form">
 
@@ -35,7 +39,6 @@
 			</div>
 		</div>
 	</form:form>
-
 </body>
 </html>
 <content tag="local_script">

@@ -53,8 +53,7 @@ public class TestCase {
 		private int charDeletions;
 		private int charInsertions;
 		private String tree;
-		private ArrayList<String> parsers;
-		private ArrayList<Diff> diffs;
+		private ArrayList<String> parsers;		
 
 		public TestOutput() {
 			super();
@@ -129,50 +128,5 @@ public class TestCase {
 		public void setParsers(ArrayList<String> parsers) {
 			this.parsers = parsers;
 		}
-
-		public ArrayList<Diff> getDiffs() {
-			return diffs;
-		}
-
-		public void setDiffs(ArrayList<Diff> diffs) {
-			this.diffs = diffs;
-		}
-	}
-
-	public class Diff {
-		private int index;
-		private String type;
-		private String content;
-
-		public Diff(int index, String type, String content) {
-			super();
-			this.index = index;
-			this.type = type;
-			this.content = content;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-
-		public void setIndex(int index) {
-			this.index = index;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public String getContent() {
-			return content;
-		}
-
-		public void setContent(String content) {
-			this.content = content;
-		}
-	}
+	}		
 }

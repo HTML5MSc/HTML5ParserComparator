@@ -5,9 +5,16 @@ import java.util.List;
 
 public class FormattingUtils {
 
+	public static final String START_CODE_INS = "StartCodeIns";
+	public static final String END_CODE_INS = "EndCodeIns";
+	public static final String START_CODE_DEL = "StartCodeDel";
+	public static final String END_CODE_DEL = "EndCodeDel";
+	
 	private static final String SPAN_INS = "<span class=\"line_ins\">";
 	private static final String SPAN_DEL = "<span class=\"line_del\">";
 	private static final String SPAN_CLOSE = "</span>";
+	
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	public static String formatTreeLines(String tree) {
 		if (tree == null || tree.equals(""))
@@ -15,7 +22,7 @@ public class FormattingUtils {
 
 		StringBuilder reconstructedTree = new StringBuilder();
 		boolean isOpen = false;
-		for (String s : tree.split("\n")) {
+		for (String s : tree.split(LINE_SEPARATOR)) {
 
 			List<Integer> insStartIndexes = getIndexesOf(s, "<ins>");
 			List<Integer> insEndIndexes = getIndexesOf(s, "</ins>");
@@ -78,7 +85,8 @@ public class FormattingUtils {
 				isOpen = false;
 			}
 
-			reconstructedTree.append(s + "\n");
+			reconstructedTree.append(s);
+			reconstructedTree.append(LINE_SEPARATOR);
 		}
 
 		return reconstructedTree.toString().substring(0,
@@ -99,7 +107,7 @@ public class FormattingUtils {
 		List<String> indexes = new ArrayList<String>();
 		for (int index = word.indexOf(startValue); index != -1; index = word
 				.indexOf(startValue, index + 1)) {
-			int startIndex = word.substring(0, index).lastIndexOf("\n| ");
+			int startIndex = word.substring(0, index).lastIndexOf(LINE_SEPARATOR + "| ");
 			int endIndex = word.indexOf(endValue, index);
 			if (endIndex != -1) {
 				endIndex += appendEndValue ? endValue.length() : 0;
@@ -113,7 +121,7 @@ public class FormattingUtils {
 		List<String> indexes = new ArrayList<String>();
 		for (int index = word.indexOf(startValue); index != -1; index = word
 				.indexOf(startValue, index + 1)) {
-			int startIndex = word.substring(0, index).lastIndexOf("\n| ");
+			int startIndex = word.substring(0, index).lastIndexOf(LINE_SEPARATOR + "| ");
 			String endValue = word.substring(startIndex, index).concat("&lt;");
 			int endIndex = word.indexOf(endValue, index);
 			if (endIndex != -1) {				
@@ -121,5 +129,27 @@ public class FormattingUtils {
 			}
 		}
 		return indexes;
+	}
+	
+	public static String escapeStringToHTML(String string) {
+		return string.replace("&", "&amp;").replace("<", "&lt;")
+				.replace(">", "&gt;");
+		// .replace("\n", "<br>");
+	}
+
+	public static String unEscapeDiffTags(String string) {
+		string = string.replace(START_CODE_INS, "<ins>")
+				.replace(END_CODE_INS, "</ins>")
+				.replace(START_CODE_DEL, "<del>")
+				.replace(END_CODE_DEL, "</del>");
+		return string;
+	}
+	
+	public static String escapeInsTag(String string) {
+		return START_CODE_INS + string + END_CODE_INS;
+	}
+	
+	public static String escapeDelTag(String string) {
+		return START_CODE_DEL + string + END_CODE_DEL;
 	}
 }

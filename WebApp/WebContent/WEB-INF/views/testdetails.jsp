@@ -9,12 +9,14 @@
 </head>
 <body>
 
-	<a href="report.html?reportName=${reportName}">Return to Report</a>
+	<div style="padding-top:50px">
+	<a href="report.html?reportName=${reportName}" class="btn btn-primary">Return to Report</a>
+	</div>
 
 	<c:if test="${not empty test}">
-		<h2>
-			<small>Test details</small>
-		</h2>
+		<h1 class="page-header">
+			<small>Report details</small>
+		</h1>
 		<dl>
 			<dt class="text-uppercase">Name</dt>
 			<dd>${test.name}</dd>
@@ -43,16 +45,28 @@
 							path="prettify" /> Pretty code
 					</label>
 					<label class="checkbox-inline">
+						<form:checkbox id="cbOriginalOutput" 
+							path="originalOutput" /> Show original output 
+					</label>
+					<label class="checkbox-inline">
 					  	<form:checkbox id="cbRemoveTextAfterLastDiff" 
 					  		path="removeTextAfterLastDiff"/> Remove text after last difference
 					</label>
 					<label class="checkbox-inline">
 					  	<form:checkbox id="cbRemoveScriptContent" 
-					  		path="removeScriptContent"/> Remove script content
+					  		path="removeScriptContent"/> Remove script elements
 					</label>
 					<label class="checkbox-inline">
 					  	<form:checkbox id="cbRemoveStyleContent" 
-					  		path="removeStyleContent"/> Remove style content
+					  		path="removeStyleContent"/> Remove style elements
+					</label>
+					<label class="checkbox-inline">
+					  	<form:checkbox id="cbRemoveMetaContent" 
+					  		path="removeMetaContent"/> Remove meta elements
+					</label>
+					<label class="checkbox-inline">
+					  	<form:checkbox id="cbRemoveLinkContent" 
+					  		path="removeLinkContent"/> Remove link elements
 					</label>					
 					<label class="checkbox-inline">
 					  	<form:checkbox id="cbRemoveComments" 

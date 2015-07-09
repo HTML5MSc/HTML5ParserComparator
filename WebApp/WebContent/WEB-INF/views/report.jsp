@@ -9,11 +9,9 @@
 </head>
 <body>
 
-
-
-	<h2>
+	<h1 class="page-header">
 		<small>Report details</small>
-	</h2>
+	</h1>
 
 	<dl class="dl-horizontal">
 		<dt class="text-uppercase">Number of tests</dt>
