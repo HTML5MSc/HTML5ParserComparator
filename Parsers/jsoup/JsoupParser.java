@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -55,8 +56,13 @@ public class JsoupParser {
 			e.printStackTrace();
 		}
 		String output = Html5libSerializer.dom2string(doc);
-		output = output.replace("]]>", "]] >");
-		System.out.println(output);
+		try{
+			PrintStream out = new PrintStream(System.out, true, "UTF-8");
+			out.println(output);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static String readFile(String path) {

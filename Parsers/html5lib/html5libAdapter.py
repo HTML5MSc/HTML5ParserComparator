@@ -44,7 +44,6 @@ if len(sys.argv) == 3:
 		with closing(urlopen(sys.argv[2])) as f:
 			document = p.parse(f)
 	output = p.tree.testSerializer(document)
-	output = output.replace("]]>", "]] >");
 	
 	print convertTreeDump(output.encode('utf-8'))
 	

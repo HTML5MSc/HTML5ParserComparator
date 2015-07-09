@@ -61,8 +61,8 @@ namespace AngleSharpParser
 
             }
             String output = Html5libSerializer.dom2string(document);
-            output = output.Replace("]]>", "]] >");
             //Console.WriteLine(document.DocumentElement.OuterHtml);
+            Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine(output);
             //Console.ReadKey();
         }
