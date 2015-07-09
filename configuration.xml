@@ -1,7 +1,0 @@
-<config>
-	<file path="/tests" />
-	<parsers>
-		<parser name="jsoup" command="java -jar jsoup/JsoupParser.jar -f "/>
-		<parser name="parse5" command="node parse5/parser5.js "/>
-	</parsers>
-</config>

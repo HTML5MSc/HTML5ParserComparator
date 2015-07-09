@@ -19,8 +19,8 @@ import com.HTML5.ParserComparer.model.ReportGenerator;
 import com.HTML5.ParserComparer.model.TestCase;
 import com.HTML5.ParserComparer.model.TestCaseGenerator;
 import com.HTML5.ParserComparer.model.WebConfig;
-import com.HTML5.ParserComparer.model.utils.IOUtils;
 import com.HTML5.ParserComparer.model.utils.ProcessRunner;
+import com.html5tools.Utils.IOUtils;
 
 @Controller
 public class ReportController {
@@ -58,7 +58,7 @@ public class ReportController {
 		// Test test = initializeTest();
 		FormatOptions formatOptions = new FormatOptions();
 		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
-				.getReportPath().concat(reportName), testName, formatOptions);		
+				.getReportPath().concat(reportName), testName, formatOptions);
 		model.addAttribute(formatOptions);
 		model.addAttribute("reportName", reportName);
 		model.addAttribute("testName", testName);
@@ -67,10 +67,11 @@ public class ReportController {
 	}
 
 	@RequestMapping(value = "/testdetails", method = RequestMethod.POST)
-	public String formatTestOutputs( @ModelAttribute("formatOptions") FormatOptions formatOptions,
+	public String formatTestOutputs(
+			@ModelAttribute("formatOptions") FormatOptions formatOptions,
 			Model model, @RequestParam(value = "reportName") String reportName,
-			@RequestParam(value = "testName") String testName){
-		
+			@RequestParam(value = "testName") String testName) {
+
 		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
 				.getReportPath().concat(reportName), testName, formatOptions);
 		model.addAttribute(formatOptions);
@@ -79,7 +80,7 @@ public class ReportController {
 		model.addAttribute("test", testCase);
 		return "testdetails";
 	}
-	
+
 	@RequestMapping(value = "/inputform", method = RequestMethod.GET)
 	public String viewParserForm(Model model) {
 		ParserInput parserInput = new ParserInput();
@@ -104,9 +105,11 @@ public class ReportController {
 
 		String fileName = null;
 		String reportName = getReportName();
+		String testName = "test".concat(Long.toString(System
+				.currentTimeMillis()));
 		List<String> args = new ArrayList<String>();
 		args.add(webConfig.getBashScriptFullPath());
-		args.add("test".concat(Long.toString(System.currentTimeMillis())));
+		args.add(testName);
 		args.add(webConfig.getReportPath().concat(reportName));
 
 		if (parserInput.getTypeParameter().equals("-s")) {
@@ -114,30 +117,34 @@ public class ReportController {
 			fileName = "input"
 					.concat(Long.toString(System.currentTimeMillis())).concat(
 							".txt");
+			String inputText = parserInput.getValue().replace("]]>", "]] >");
 			IOUtils.saveFile(webConfig.getBashScriptPath().concat(fileName),
-					parserInput.getValue());
+					inputText);
 			args.add(fileName);
 		} else {
+			testName = parserInput.getValue();
 			args.add(parserInput.getTypeParameter());
 			args.add(parserInput.getValue());
 		}
 
 		try {
 			ProcessRunner.run(args, webConfig.getBashScriptPath());
-		} catch (IOException | InterruptedException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			model.addAttribute("error", "The url could not be accessed.");
+			return viewParserForm(model);
 		} finally {
 			if (fileName != null)
-				IOUtils.deleteFile(webConfig.getBashScriptPath().concat(
-						fileName));
+				try {
+					IOUtils.deleteFile(webConfig.getBashScriptPath().concat(
+							fileName));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 
-		Report report = ReportGenerator.getReport(webConfig.getReportPath()
-				.concat(reportName));
-		model.addAttribute("reportName", reportName);
-		model.addAttribute("report", report);
-		return "report";
+		return testDetails(model, reportName, testName);
 	}
 
 	private String getReportName() {
@@ -145,41 +152,4 @@ public class ReportController {
 		// "report".concat(
 		// Long.toString(System.currentTimeMillis())).concat(".xml");
 	}
-
-	// private Report initializeReport() {
-	// Report report = new Report();
-	// report.setNumberOfTests(10);
-	// report.setTestsEqual(8);
-	// report.setTestsDifferent(2);
-	// report.setTestDate(new Date().toString());
-	//
-	// ArrayList<TestResult> testResults = new ArrayList<>();
-	// testResults.add(new TestResult("html5lib", 10, 0));
-	// testResults.add(new TestResult("parse5", 9, 1));
-	// testResults.add(new TestResult("jsoup", 6, 4));
-	// report.setTestResults(testResults);
-	// return report;
-	// }
-	//
-	// private Test initializeTest() {
-	// Test test = new Test();
-	// test.setName("abcd-1");
-	// test.setAllEqual(false);
-	// ArrayList<TestOutput> outputs = new ArrayList<TestOutput>();
-	// ArrayList<String> parser1 = new ArrayList<String>();
-	// ArrayList<String> parser2 = new ArrayList<String>();
-	// parser1.add("jsoup");
-	// parser1.add("parse5");
-	// parser2.add("html5lib");
-	// TestOutput output1 = new TestOutput();
-	// output1.setParsers(parser1);
-	// output1.setTree("| tree \n|   one");
-	// TestOutput output2 = new TestOutput();
-	// output2.setParsers(parser2);
-	// output2.setTree("| tree \n|   1one");
-	// outputs.add(output1);
-	// outputs.add(output2);
-	// test.setOutputs(outputs);
-	// return test;
-	// }
 }

@@ -9,13 +9,12 @@ import java.util.List;
 
 public class ProcessRunner {
 
-	public static void run(List<String> args, String directory) throws IOException,
-			InterruptedException {
+	public static void run(List<String> args, String directory) throws Exception {
 		run(args, directory, true);
 	}
 
 	public static void run(List<String> args, String directory, boolean waitForCompletion)
-			throws IOException, InterruptedException {
+			throws Exception {
 		System.out.println("Process started");
 		Process process = new ProcessBuilder(args).directory(new File(directory)).start();
 		if (waitForCompletion) {
@@ -24,6 +23,8 @@ public class ProcessRunner {
 					.println("Process completed, any errors? "
 							+ (errCode == 0 ? "No" : "Yes - "
 									+ String.valueOf(errCode)));
+			if(errCode != 0)
+				throw new Exception("Could not complete the process.");
 		}
 		System.out.println(inputStreamToString(process.getErrorStream()));
 		System.out.println("Process output:\n"
