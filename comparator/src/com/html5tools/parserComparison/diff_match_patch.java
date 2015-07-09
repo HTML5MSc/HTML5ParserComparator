@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.html5tools.Utils;
+package com.html5tools.parserComparison;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
