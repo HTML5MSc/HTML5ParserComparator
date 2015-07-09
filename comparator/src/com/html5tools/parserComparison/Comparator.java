@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.xpath.XPathConstants;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -33,9 +35,9 @@ public class Comparator {
 		if (args.length != 1)
 			throw new Exception(
 					"Missing argument. Argument must be the path to a directory.");
-		
+
 		String path = args[0];
-		// String path = "A:\\GitHub\\HTML5ParserComparator\\testHtml5libTests";
+		//String path = "A:\\GitHub\\HTML5ParserComparator\\testHtml5libTests";
 
 		if (!IOUtils.directoryExists(path))
 			throw new Exception("Could not find the directory");
@@ -45,8 +47,7 @@ public class Comparator {
 
 		for (String folderName : IOUtils.listFoldersInFolder(path, false)) {
 			folderName = path + "\\" + folderName;
-			String testName = folderName;
-			String inputValue = folderName;
+			String testName = folderName;			
 			List<OutputTree> trees = new ArrayList<OutputTree>();
 			List<String> successfulParsers;
 			parserNames = new ArrayList<String>();
@@ -67,7 +68,7 @@ public class Comparator {
 			trees = groupByEquality(trees);
 			successfulParsers = getParsersInMajority(trees);
 
-			updateReport(folderName, testName, trees, inputValue);
+			updateReport(folderName, testName, trees);
 			updateTestResults(successfulParsers);
 		}
 		XMLUtils.saveReportToFile(report, reportFileName);
@@ -166,7 +167,7 @@ public class Comparator {
 	}
 
 	private void updateReport(String folderPath, String testName,
-			List<OutputTree> trees, String inputValue) {
+			List<OutputTree> trees) {
 
 		Node root = report.getElementsByTagName("report").item(0);
 		Node totals = report.getElementsByTagName("generalData").item(0);
@@ -175,10 +176,7 @@ public class Comparator {
 		Node test = XMLUtils.addNode(report, root, "test");
 		XMLUtils.addAttribute(report, test, "name", testName);
 		XMLUtils.addAttribute(report, test, "numberOfTrees",
-				String.valueOf(trees.size()));
-
-		Node input = XMLUtils.addNode(report, test, "input");
-		XMLUtils.addAttribute(report, input, "name", inputValue);
+				String.valueOf(trees.size()));	
 
 		if (trees.size() == 1)
 			XMLUtils.incrementAttributeValue(totals, "equals");
@@ -231,8 +229,8 @@ public class Comparator {
 
 			String xPathExp = "/report/testResult/*[@name='" + parserName
 					+ "']";
-			Node parserNodeInTestResult = XMLUtils.executeXPathExpression(
-					report, xPathExp);
+			Node parserNodeInTestResult = (Node) XMLUtils
+					.executeXPath(report, xPathExp, XPathConstants.NODE);
 			if (parserNodeInTestResult != null)
 				XMLUtils.incrementAttributeValue(parserNodeInTestResult,
 						"passed");
@@ -246,8 +244,8 @@ public class Comparator {
 
 			String xPathExp = "/report/testResult/*[@name='" + parserName
 					+ "']";
-			Node parserNodeInTestResult = XMLUtils.executeXPathExpression(
-					report, xPathExp);
+			Node parserNodeInTestResult = (Node) XMLUtils
+					.executeXPath(report, xPathExp, XPathConstants.NODE);
 			if (parserNodeInTestResult != null)
 				XMLUtils.incrementAttributeValue(parserNodeInTestResult,
 						"failed");

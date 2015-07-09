@@ -13,7 +13,7 @@ import java.util.List;
 
 public class IOUtils {
 	public static boolean createDirectory(String path) {
-		if(path == null)
+		if (path == null)
 			return false;
 		File files = new File(path);
 		if (!files.exists()) {
@@ -26,34 +26,36 @@ public class IOUtils {
 	}
 
 	public static boolean directoryExists(String path) {
-		if(path == null)
+		if (path == null)
 			return false;
 		File folder = new File(path);
 		return folder.exists();
 	}
 
-	public static List<String> listFoldersInFolder(String path, boolean recursive) {
+	public static List<String> listFoldersInFolder(String path,
+			boolean recursive) {
 		List<String> filesInFolder = new ArrayList<String>();
-		if(path == null)
+		if (path == null)
 			return filesInFolder;
-		
+
 		File folder = new File(path);
 		for (final File fileEntry : folder.listFiles()) {
 			String fileName = fileEntry.getName();
 			if (fileEntry.isDirectory()) {
 				filesInFolder.add(fileName);
-				if(recursive)
-					filesInFolder.addAll(listFoldersInFolder(fileName, recursive));
+				if (recursive)
+					filesInFolder.addAll(listFoldersInFolder(fileName,
+							recursive));
 			}
 		}
 		return filesInFolder;
 	}
-	
+
 	public static List<String> listFilesInFolder(String path, boolean recursive) {
 		List<String> filesInFolder = new ArrayList<String>();
-		if(path == null)
+		if (path == null)
 			return filesInFolder;
-		
+
 		File folder = new File(path);
 		for (final File fileEntry : folder.listFiles()) {
 			String fileName = fileEntry.getName();
@@ -80,10 +82,10 @@ public class IOUtils {
 		}
 	}
 
-	public static void deleteFile(String fileName) throws IOException{
+	public static void deleteFile(String fileName) throws IOException {
 		Files.delete(new File(fileName).toPath());
 	}
-	
+
 	public static String readFile(String path) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = null;

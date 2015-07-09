@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,7 +19,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -124,20 +124,20 @@ public class XMLUtils {
 		return null;
 	}
 
-	public static Node executeXPathExpression(Document document,
-			String expression) {
-		Node node = null;
+	public static Object executeXPath(Document document, String expression,
+			QName outputType) {
+		Object result = null;
 		XPathFactory xPathfactory = XPathFactory.newInstance();
 		XPath xpath = xPathfactory.newXPath();
 		XPathExpression expr;
 		try {
 			expr = xpath.compile(expression);
-			node = (Node) expr.evaluate(document, XPathConstants.NODE);
+			result = expr.evaluate(document, outputType);
 		} catch (XPathExpressionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return node;
+		return result;
 	}
 
 	public static void saveReportToFile(Node node, String documentFileName) {

@@ -63,14 +63,14 @@ public class DiffUtilsTest {
 	@Test(expected = NumberFormatException.class)
 	public void testGetDiffsWhenMalformedDiffCharsThenException()
 			throws Exception {
-		String diffsString = "+1,a\n";
+		String diffsString = "+1,a,";
 
 		DiffUtils.getDiffs(diffsString);
 	}
 
 	@Test
 	public void testGetDiffsOneDiff() throws Exception {
-		String diffsString = "+3,7\n1234567\n";
+		String diffsString = "+3,7,1234567;";
 
 		List<DiffEntry> diffs = DiffUtils.getDiffs(diffsString);
 
@@ -84,9 +84,9 @@ public class DiffUtilsTest {
 
 	@Test
 	public void testGetDiffsManyDiffs() throws Exception {
-		String diffsString = "-12,2\n\n\t\n";
-		diffsString += "+22,4\n﨟〃々〻\n";
-		diffsString += "-32,3\n123\n";
+		String diffsString = "-12,2,,\t;";
+		diffsString += "+22,4,﨟〃々〻;";
+		diffsString += "-32,3,123;";
 
 		List<DiffEntry> diffs = DiffUtils.getDiffs(diffsString);
 
@@ -97,26 +97,26 @@ public class DiffUtilsTest {
 		assertEquals("Incorrect diff content", "﨟〃々〻", diffs.get(1)
 				.getContent());
 	}
-	
+
 	@Test
 	public void testGetOriginalFromOneDiff() {
-		String base = "test string";		
+		String base = "test string";
 		String expected = "test new string";
-		
+
 		String diffs = DiffUtils.getFormattedDiffs(base, expected);
 		String reconstructed = DiffUtils.getOriginalFromDiffs(base, diffs);
-		
+
 		assertEquals("Incorrect string", expected, reconstructed);
 	}
-	
+
 	@Test
 	public void testGetOriginalFromManyDiffs() {
 		String base = "test string";
 		String expected = "best strings";
-		
+
 		String diffs = DiffUtils.getFormattedDiffs(base, expected);
 		String reconstructed = DiffUtils.getOriginalFromDiffs(base, diffs);
-		
+
 		assertEquals("Incorrect string", expected, reconstructed);
 	}
 }

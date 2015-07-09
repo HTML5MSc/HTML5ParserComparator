@@ -9,6 +9,9 @@ import com.html5tools.Utils.diff_match_patch.Diff;
 import com.html5tools.Utils.diff_match_patch.Operation;
 
 public class DiffUtils {
+	
+	private static final String SEPARATOR = ",";
+	
 	public static String getFormattedDiffs(String string1, String string2) {
 		StringBuilder sb = new StringBuilder();
 
@@ -23,11 +26,11 @@ public class DiffUtils {
 			if (diff.operation != Operation.EQUAL) {
 				sb.append(diff.operation == Operation.INSERT ? "+" : "-");
 				sb.append(index);
-				sb.append(",");
+				sb.append(SEPARATOR);
 				sb.append(diff.text.length());
-				sb.append("\n");
+				sb.append(SEPARATOR);
 				sb.append(diff.text);
-				sb.append("\n");
+				sb.append(";");
 			}
 			index += diff.text.length();
 		}
@@ -90,14 +93,14 @@ public class DiffUtils {
 				throw new Exception("Unexpected character");
 
 			pointer = separatorPointer;
-			separatorPointer = diffsString.indexOf(",", pointer);
+			separatorPointer = diffsString.indexOf(SEPARATOR, pointer);
 			if (separatorPointer == -1)
 				throw new Exception("Character separator not found");
 			index = Integer.valueOf(diffsString.substring(pointer,
 					separatorPointer));
 
 			pointer = separatorPointer + 1;
-			separatorPointer = diffsString.indexOf("\n", pointer);
+			separatorPointer = diffsString.indexOf(SEPARATOR, pointer);
 			if (separatorPointer == -1)
 				throw new Exception("Character separator not found");
 			charsToRead = Integer.valueOf(diffsString.substring(pointer,
