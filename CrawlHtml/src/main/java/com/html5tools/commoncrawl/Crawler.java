@@ -31,24 +31,24 @@ public class Crawler {
 
 	private final static Logger LOG = Logger.getLogger(Crawler.class.getName());
 
-	private String reportFile;
-	private String htmlPath = "tempdocsin/";
+	//private String reportFile;
+	private String htmlPath = "tempdocsin";
 	private String workingPath;
 
 	private static long startTime;
 
-	private Comparator comparator = new Comparator();
+	//private Comparator comparator = new Comparator();
 
 	private ParserRunner parserRunner;
 
 	private String ccArchiveName;
 
 	private String parser;
-	private String cmd;
+	//private String cmd;
 
 	public Crawler(String parser, String cmd) throws IOException {
 		this.parser = parser;
-		this.cmd = cmd;
+		//this.cmd = cmd;
 		parserRunner = new ParserRunner(parser, cmd);
 		loadProperties();
 		init();
@@ -83,7 +83,7 @@ public class Crawler {
 			// Running with defaults
 		}
 
-		reportFile = applicationProps.getProperty("reportFile");
+		//reportFile = applicationProps.getProperty("reportFile");
 		workingPath = applicationProps.getProperty("workingPath");
 	}
 
@@ -251,7 +251,7 @@ public class Crawler {
 	}
 
 	private String getArchiveName(String file) {
-		int beginIndex = file.lastIndexOf('/') + 1;
+		int beginIndex = file.lastIndexOf("CC-MAIN-");
 		int endIndex = file.lastIndexOf("-ip-");
 		return file.substring(beginIndex, endIndex);
 	}
@@ -312,7 +312,7 @@ public class Crawler {
 					// System.out.println(body);
 					if (!body.isEmpty()) {
 						numberHtmlDocsRetrieved++;
-						Path htmlTempFile = Paths.get(htmlPath + "htmlDocTemp"
+						Path htmlTempFile = Paths.get(htmlPath, "htmlDocTemp"
 								+ System.currentTimeMillis());
 						saveTempFile(htmlTempFile, body);
 						String outputTree = runParsers(htmlTempFile
@@ -416,11 +416,11 @@ public class Crawler {
 		return parserRunner.parseFile(htmlDocPath);
 	}
 
-	private void compareOutputs(Map<String, String> outputTrees, String recordID) {
-		// TODO: Enhance comparator to process stream of bytes, instead of
-		// String
-		comparator.run(recordID, reportFile, outputTrees);
-	}
+//	private void compareOutputs(Map<String, String> outputTrees, String recordID) {
+//		// TODO: Enhance comparator to process stream of bytes, instead of
+//		// String
+//		comparator.run(recordID, reportFile, outputTrees);
+//	}
 
 	public static void main(String[] args) throws IOException {
 
@@ -432,13 +432,13 @@ public class Crawler {
 		String cmd = args[1];
 		String ccfile = args[2];
 		
-		// Let's grab a file out of the CommonCrawl S3 bucket
-		String fn = "common-crawl/crawl-data/CC-MAIN-2013-48/segments/1386163035819/warc/CC-MAIN-20131204131715-00000-ip-10-33-133-15.ec2.internal.warc.gz";
-		fn = "https://aws-publicdatasets.s3.amazonaws.com/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/CC-MAIN-20150417045713-00000-ip-10-235-10-82.ec2.internal.warc.gz";
-
-		long offset = 0;// Start from offset 0, the beginning
-		// offset = 15172197; // CDATA
-		offset = 540967;
+//		// Let's grab a file out of the CommonCrawl S3 bucket
+//		String fn = "common-crawl/crawl-data/CC-MAIN-2013-48/segments/1386163035819/warc/CC-MAIN-20131204131715-00000-ip-10-33-133-15.ec2.internal.warc.gz";
+//		fn = "https://aws-publicdatasets.s3.amazonaws.com/common-crawl/crawl-data/CC-MAIN-2015-18/segments/1429246633512.41/warc/CC-MAIN-20150417045713-00000-ip-10-235-10-82.ec2.internal.warc.gz";
+//
+//		long offset = 0;// Start from offset 0, the beginning
+//		// offset = 15172197; // CDATA
+//		offset = 540967;
 
 		startTime = System.currentTimeMillis();
 		
