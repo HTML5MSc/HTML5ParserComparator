@@ -2,6 +2,7 @@ package com.html5tools.parserComparison.report;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,10 +26,34 @@ public abstract class Report {
 	
 	protected Report(){};
 	
-	public abstract void updateReport(String testName, List<OutputTree> trees,
-			List<String> successfulParsers, String inputValue);
+	public abstract void updateReport(String folderPath, String testName,
+			List<OutputTree> trees);	
 
 	public abstract void saveReportToFile(String reportFileName);
+	
+	public void updateTestResults(List<String> successfulParsers) {
+
+		for (String parserName : successfulParsers) {
+
+			String xPathExp = "/report/testResult/*[@name='" + parserName
+					+ "']";
+			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
+			if (parserNodeInTestResult != null)
+				incrementAttributeValue(parserNodeInTestResult, "passed");
+		}
+		List<String> failingParsers = new ArrayList<String>(parserNames);
+		failingParsers.removeAll(successfulParsers);
+
+		for (String parserName : failingParsers) {
+
+			String xPathExp = "/report/testResult/*[@name='" + parserName
+					+ "']";
+			Node parserNodeInTestResult = executeXPathExpression(xPathExp);
+			if (parserNodeInTestResult != null)
+				incrementAttributeValue(parserNodeInTestResult, "failed");
+		}
+	}
+	
 	
 	protected void addAttribute(Node node, String attName, String attValue) {
 		Attr attr = report.createAttribute(attName);

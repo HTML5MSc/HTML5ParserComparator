@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,10 +23,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.html5tools.Utils.DiffUtils;
+import com.html5tools.Utils.IOUtils;
+import com.html5tools.Utils.XMLUtils;
 import com.html5tools.parserComparison.OutputTree;
-import com.html5tools.parserComparison.diff_match_patch;
-import com.html5tools.parserComparison.diff_match_patch.Diff;
-import com.html5tools.parserComparison.diff_match_patch.Operation;
 import com.html5tools.parserComparison.report.Report;
 
 public class SingleReport extends Report {
@@ -69,8 +68,8 @@ public class SingleReport extends Report {
 
 	}
 
-	public void updateReport(String testName, List<OutputTree> trees,
-			List<String> successfulParsers, String inputValue) {
+	public void updateReport(String folderPath, String testName,
+			List<OutputTree> trees) {
 		Node root = report.getElementsByTagName("report").item(0);
 		Node totals = report.getElementsByTagName("generalData").item(0);
 		incrementAttributeValue(totals, "numberOfTests");
@@ -78,9 +77,6 @@ public class SingleReport extends Report {
 		Node test = addNode(root, "test");
 		addAttribute(test, "name", testName);
 		addAttribute(test, "numberOfTrees", String.valueOf(trees.size()));
-
-		Node input = addNode(test, "input");
-		addCDATA(input, inputValue);
 
 		if (trees.size() == 1)
 			incrementAttributeValue(totals, "equals");
@@ -91,29 +87,35 @@ public class SingleReport extends Report {
 		for (int i = 0; i < trees.size(); i++) {
 			OutputTree tree = trees.get(i);
 
-			Node output = addNode(test, "output");
+			Node output = XMLUtils.addNode(report, test, "output");
 
-			Node parsers = addNode(output, "parsers");
+			Node parsers = XMLUtils.addNode(report, output, "parsers");
 			for (String parserName : tree.getParsers()) {
-				Node parser = addNode(parsers, "parser");
-				addAttribute(parser, "name", parserName);
+				Node parser = XMLUtils.addNode(report, parsers, "parser");
+				XMLUtils.addAttribute(report, parser, "name", parserName);
 			}
 
-			Node treeNode = addNode(output, "tree");
+			String fileName;
+			String content;
 			// Because the list is ordered, the first tree represents the
 			// majority
 			if (i == 0) {
-				addAttribute(output, "majority", "true");
 				majorityTree = tree.getTree();
-				addCDATA(treeNode, tree.getTree());
+				fileName = "majority";
+				content = majorityTree;
+				XMLUtils.addAttribute(report, output, "majority", "true");
+				XMLUtils.addAttribute(report, output, "fileName", fileName);
+				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			} else {
-				addAttribute(output, "majority", "false");
-				Node diffsNode = getDiffsNode(majorityTree, tree.getTree());
-				treeNode.appendChild(diffsNode);
+				fileName = "diff" + String.valueOf(i);
+				content = DiffUtils.getFormattedDiffs(majorityTree,
+						tree.getTree());
+				XMLUtils.addAttribute(report, output, "majority", "false");
+				XMLUtils.addAttribute(report, output, "fileName", fileName);
+				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			}
 		}
 
-		updateTestResults(successfulParsers);
 	}
 
 	public void saveReportToFile(String reportFileName) {
@@ -136,38 +138,7 @@ public class SingleReport extends Report {
 		}
 	}
 
-	
-
-	private Node getDiffsNode(String tree1, String tree2) {
-		Node diffsNode = report.createElement("diffs");
-
-		diff_match_patch dmp = new diff_match_patch();
-		LinkedList<diff_match_patch.Diff> diffs = dmp.diff_main(tree1, tree2,
-				false);
-		dmp.Diff_EditCost = 1;
-		dmp.diff_cleanupEfficiency(diffs);
-		// dmp.diff_cleanupSemantic(diffs);
-		// dmp.diff_cleanupMerge(diffs);
-
-		int index = 0;
-		for (Diff diff : diffs) {
-			if (diff.operation != Operation.EQUAL) {
-				Node diffNode = addNode(diffsNode, "diff");
-				addCDATA(diffNode, diff.text);
-				addAttribute(diffNode, "index", String.valueOf(index));
-
-				if (diff.operation == Operation.INSERT)
-					addAttribute(diffNode, "type", "I");
-				else if (diff.operation == Operation.DELETE)
-					addAttribute(diffNode, "type", "D");
-			}
-			index += diff.text.length();
-		}
-
-		return diffsNode;
-	}
-
-	private void updateTestResults(List<String> successfulParsers) {
+	public void updateTestResults(List<String> successfulParsers) {
 
 		for (String parserName : successfulParsers) {
 
