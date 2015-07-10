@@ -14,41 +14,40 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.apache.commons.io.IOUtils;
 
-import com.html5parser.parser.HTML5Parser;
+public class ParserRunner_backup {
 
-public class ParserRunner {
-
-	private final static Logger LOG = Logger.getLogger(ParserRunner.class
+	private final static Logger LOG = Logger.getLogger(ParserRunner_backup.class
 			.getName());
 	private static final String WORKING_PATH = "/home/jose/HTML5ParserComparator/";
-	private static final long TIMEOUT = 30000;
+	private static final long TIMEOUT = 60000;
 
 	// private final List<ParserRun> parsers = new ArrayList<ParserRun>();
 
-	public ParserRunner() {
+	public ParserRunner_backup() {
 
 	}
 
 	public Map<String, String> parseFile(String htmlDocPath) throws IOException {
 		List<ParserRun> parsers = new ArrayList<ParserRun>();
 
-		 String[] cmdMScParser = { "java", "-jar",
-		 WORKING_PATH + "MScParser/BestParserEver.jar", "-f",
-		 htmlDocPath };
-		//String[] cmdMScParser = { "-f", htmlDocPath };
-		//ParserRun mscParser = new ParserRun("thePerron", cmdMScParser, "msc");
-		ParserRun mscParser = new ParserRun("thePerron", cmdMScParser);
-		parsers.add(mscParser);
-		
-		String[] cmdParse5 = new String[] { "node",
-				WORKING_PATH + "parse5/parser5.js", "-f", htmlDocPath };
-		ParserRun parser5 = new ParserRun("parser5", cmdParse5);
-		parsers.add(parser5);
+		// String[] cmdMScParser = { "java", "-jar",
+		// WORKING_PATH + "MScParser/BestParserEver.jar", "-f",
+		// htmlDocPath };
+		// //String[] cmdMScParser = { "-f", htmlDocPath };
+		// //ParserRun mscParser = new ParserRun("thePerron", cmdMScParser,
+		// "msc");
+		// ParserRun mscParser = new ParserRun("thePerron", cmdMScParser);
+		// parsers.add(mscParser);
 
-		String[] cmdJsoup = { "java", "-jar",
-				WORKING_PATH + "jsoup/JsoupParser.jar", "-f", htmlDocPath };
-		ParserRun jsoup = new ParserRun("jsoup", cmdJsoup);
-		parsers.add(jsoup);
+		// String[] cmdParse5 = new String[] { "node",
+		// WORKING_PATH + "parse5/parser5.js", "-f", htmlDocPath };
+		// ParserRun parser5 = new ParserRun("parser5", cmdParse5);
+		// parsers.add(parser5);
+
+		// String[] cmdJsoup = { "java", "-jar",
+		// WORKING_PATH + "jsoup/JsoupParser.jar", "-f", htmlDocPath };
+		// ParserRun jsoup = new ParserRun("jsoup", cmdJsoup);
+		// parsers.add(jsoup);
 
 		String[] cmdhtm5lLib = { "python",
 				WORKING_PATH + "html5lib/html5libAdapter.py", "-f", htmlDocPath };
@@ -110,17 +109,19 @@ public class ParserRunner {
 				if (parser.resCmd == 0) {
 					String result = new String(parser.result);
 					outputTrees.put(parser.getParserName(), result);
-				} else if(parser.resCmd < 0){
-					outputTrees.put(parser.getParserName(), "ERROR: Timeout reached" + parser.parserName);
-				} else{
-					outputTrees.put(parser.getParserName(), "ERROR: Running Parser" + parser.parserName);
+				} else if (parser.resCmd < 0) {
+					outputTrees.put(parser.getParserName(),
+							"ERROR: Timeout reached" + parser.parserName);
+				} else {
+					outputTrees.put(parser.getParserName(),
+							"ERROR: Running Parser" + parser.parserName);
 				}
-				
-				//Log any other warning or error
+
+				// Log any other warning or error
 				String error = new String(parser.error);
-				if(!error.isEmpty())
+				if (!error.isEmpty())
 					LOG.error("Error output (" + parser.parserName + ") :"
-							 + "\n" + error);
+							+ "\n" + error);
 			}
 
 		} catch (InterruptedException e) {
@@ -156,22 +157,23 @@ public class ParserRunner {
 				proc.destroy();
 		}
 
-		/**
-		 * This constructor is for Java Parsers to run it "inline"
-		 * 
-		 * @param parserName
-		 * @param parser
-		 */
-		public ParserRun(String parserName, String[] cmd, String parserRunner) {
-			this.cmd = cmd;
-			this.parserRunner = parserRunner;
-			this.parserName = parserName;
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < cmd.length - 1; i++) {
-				sb.append(" " + cmd[i]);
-			}
-			cmdS = sb.toString();
-		}
+		// /**
+		// * This constructor is for Java Parsers to run it "inline"
+		// *
+		// * @param parserName
+		// * @param parser
+		// */
+		// public ParserRun(String parserName, String[] cmd, String
+		// parserRunner) {
+		// this.cmd = cmd;
+		// this.parserRunner = parserRunner;
+		// this.parserName = parserName;
+		// StringBuilder sb = new StringBuilder();
+		// for (int i = 0; i < cmd.length - 1; i++) {
+		// sb.append(" " + cmd[i]);
+		// }
+		// cmdS = sb.toString();
+		// }
 
 		@Override
 		public void run() {
@@ -182,12 +184,6 @@ public class ParserRunner {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				PrintStream ps = new PrintStream(baos);
 				System.setOut(ps);
-
-				if (parserRunner.equals("msc")) {
-					HTML5Parser.main(cmd);
-				} else {
-
-				}
 
 				System.out.flush();
 				System.setOut(old);
@@ -214,7 +210,8 @@ public class ParserRunner {
 				} catch (IOException e) {
 					LOG.info("Exception running: " + parserName);
 					resCmd = -2;
-					if(error==null) error="null".getBytes();
+					if (error == null)
+						error = "null".getBytes();
 					e.printStackTrace();
 				} finally {
 					LOG.info("Done: " + cmdS);
