@@ -2,12 +2,17 @@ package com.html5tools.parserComparison;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.xml.sax.SAXException;
+
 
 import com.html5tools.Utils.IOUtils;
 import com.html5tools.parserComparison.report.Report;
@@ -45,44 +50,61 @@ public class Comparator {
 	public void runMulti(String path) throws Exception {
 
 		Boolean singleReport = true;
-		//path = "A:\\GitHub\\HTML5ParserComparator\\Reports";
+		// path = "A:\\GitHub\\HTML5ParserComparator\\Reports";
 
-		if (!IOUtils.directoryExists(path))
+		if (Files.notExists(Paths.get(path)))
 			throw new Exception("Could not find the directory");
 
-		String reportFileName = Paths.get(path, "report.xml").toString();
+		Path reportFileNameP = Paths.get(path, "report.xml");
+		Path pathP = Paths.get(path);
 
-		for (String folderName : IOUtils.listFoldersInFolder(path, true)) {
-			String testName = folderName; //.replace(path, "");
-			List<OutputTree> trees = new ArrayList<OutputTree>();
-			List<String> successfulParsers;
-			parserNames = new ArrayList<String>();
+		try (DirectoryStream<Path> rootStream = Files.newDirectoryStream(pathP)) {
+			for (Path folderName : rootStream) {
+				String testName = folderName.getFileName().toString();
 
-			for (String fileName : IOUtils.listFilesInFolder(folderName, false)) {
-				String outputName = fileName.substring(fileName
-						.lastIndexOf("\\") + 1);
-				if (fileName.contains("majority") || fileName.contains("diff")
-						|| fileName.contains("input"))
+				List<OutputTree> trees = new ArrayList<OutputTree>();
+				List<String> successfulParsers;
+				parserNames = new ArrayList<String>();
+
+				if (!Files.isDirectory(folderName))
 					continue;
 
-				parserNames.add(outputName);
-				String tree = IOUtils.readFile(fileName);
-				trees.add(new OutputTree(tree, outputName));
-				IOUtils.deleteFile(fileName);
+				try (DirectoryStream<Path> treeFolderStream = Files
+						.newDirectoryStream(folderName)) {
+					for (Path treeFile : treeFolderStream) {
+						String fileName = treeFile.getFileName().toString();
+						if (fileName.contains("majority")
+								|| fileName.contains("diff")
+								|| fileName.contains("input"))
+							continue;
+
+						parserNames.add(fileName);
+
+						String tree = new String(Files.readAllBytes(treeFile),
+								Charset.forName("UTF-8"));
+						trees.add(new OutputTree(tree, fileName));
+						Files.delete(treeFile);
+					}
+				} catch (IOException | DirectoryIteratorException e) {
+					e.printStackTrace();
+				}
+
+				if (parserNames.isEmpty())
+					continue;
+
+				trees = groupByEquality(trees);
+				successfulParsers = getParsersInMajority(trees);
+				saveToReport(reportFileNameP.toAbsolutePath().toString(),
+						testName, trees, successfulParsers, singleReport,
+						folderName.toAbsolutePath().toString());
 			}
-			if (parserNames.isEmpty())
-				continue;
-
-			trees = groupByEquality(trees);
-			successfulParsers = getParsersInMajority(trees);
-
-			saveToReport(reportFileName, testName, trees, successfulParsers,
-					singleReport, folderName);
+		} catch (IOException | DirectoryIteratorException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void runSingle(String path) throws IOException {
-		//path = "A:\\GitHub\\HTML5ParserComparator\\Reports\\test1";
+		// path = "A:\\GitHub\\HTML5ParserComparator\\Reports\\test1";
 		String reportFileName = Paths.get(path, "report.xml").toString();
 		List<OutputTree> trees = new ArrayList<OutputTree>();
 		List<String> successfulParsers;
@@ -105,8 +127,7 @@ public class Comparator {
 		trees = groupByEquality(trees);
 		successfulParsers = getParsersInMajority(trees);
 
-		saveToReport(reportFileName, path, trees, successfulParsers, true,
-				path);
+		saveToReport(reportFileName, path, trees, successfulParsers, true, path);
 	}
 
 	private List<String> getParsersInMajority(List<OutputTree> trees) {
@@ -159,7 +180,7 @@ public class Comparator {
 				report = new SingleReport(parserNames);
 			else
 				report = new PartitionedReport(parserNames);
-		} catch (SAXException | IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return;// Do not continue
 		}

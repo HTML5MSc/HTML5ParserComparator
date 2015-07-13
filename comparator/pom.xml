@@ -30,4 +30,11 @@
 	  </plugin>       
     </plugins>
   </build>
+  <dependencies>
+  	<dependency>
+  		<groupId>com.html5tools</groupId>
+  		<artifactId>Utils</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>
