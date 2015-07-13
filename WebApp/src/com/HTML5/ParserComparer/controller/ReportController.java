@@ -1,6 +1,5 @@
 package com.HTML5.ParserComparer.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,6 @@ public class ReportController {
 			Model model) {
 
 		model.addAttribute("name", name);
-		// returns the view name
 		return "helloworld";
 
 	}
@@ -42,7 +40,6 @@ public class ReportController {
 	public String report(
 			Model model,
 			@RequestParam(value = "reportName", required = true) String reportName) {
-		// Report report = initializeReport();
 		Report report = ReportGenerator.getReport(webConfig.getReportPath()
 				.concat(reportName));
 		model.addAttribute("reportName", reportName);
@@ -55,7 +52,6 @@ public class ReportController {
 			Model model,
 			@RequestParam(value = "reportName", required = true) String reportName,
 			@RequestParam(value = "testName", required = false) String testName) {
-		// Test test = initializeTest();
 		FormatOptions formatOptions = new FormatOptions();
 		TestCase testCase = TestCaseGenerator.getTestCase(webConfig
 				.getReportPath().concat(reportName), testName, formatOptions);
@@ -103,29 +99,23 @@ public class ReportController {
 		// // for testing purpose:
 		// System.out.println("value: " + parserInput.getValue());
 
-		String fileName = null;
 		String reportName = getReportName();
-		String testName = "test".concat(Long.toString(System
-				.currentTimeMillis()));
+		String testName = webConfig.getReportPath() + reportName;
+		String fileName = java.nio.file.Paths.get(testName, "input").toString();
+		String inputText = parserInput.getValue();
+		String inputType = parserInput.getTypeParameter();
 		List<String> args = new ArrayList<String>();
 		args.add(webConfig.getBashScriptFullPath());
-		args.add(testName);
-		args.add(webConfig.getReportPath().concat(reportName));
+		args.add(reportName);
 
-		if (parserInput.getTypeParameter().equals("-s")) {
-			args.add("-f");
-			fileName = "input"
-					.concat(Long.toString(System.currentTimeMillis())).concat(
-							".txt");
-			String inputText = parserInput.getValue().replace("]]>", "]] >");
-			IOUtils.saveFile(webConfig.getBashScriptPath().concat(fileName),
-					inputText);
-			args.add(fileName);
-		} else {
-			testName = parserInput.getValue();
-			args.add(parserInput.getTypeParameter());
-			args.add(parserInput.getValue());
+		if (inputType.equals("-s")) {
+			IOUtils.createDirectory(testName);
+			IOUtils.saveFile(fileName, inputText);
+			inputType = "-f";
+			inputText = fileName;
 		}
+		args.add(inputType);
+		args.add(inputText);
 
 		try {
 			ProcessRunner.run(args, webConfig.getBashScriptPath());
@@ -133,23 +123,14 @@ public class ReportController {
 			// TODO Auto-generated catch block
 			model.addAttribute("error", "The url could not be accessed.");
 			return viewParserForm(model);
-		} finally {
-			if (fileName != null)
-				try {
-					IOUtils.deleteFile(webConfig.getBashScriptPath().concat(
-							fileName));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 		}
 
-		return testDetails(model, reportName, testName);
+		return testDetails(model,
+				java.nio.file.Paths.get(reportName, "/report.xml").toString(),
+				null);
 	}
 
 	private String getReportName() {
-		return "reportString.xml";
-		// "report".concat(
-		// Long.toString(System.currentTimeMillis())).concat(".xml");
+		return Long.toString(System.currentTimeMillis());
 	}
 }

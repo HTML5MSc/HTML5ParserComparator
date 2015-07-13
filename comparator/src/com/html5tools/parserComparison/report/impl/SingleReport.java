@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,16 +106,15 @@ public class SingleReport extends Report {
 				fileName = "majority";
 				content = majorityTree;
 				XMLUtils.addAttribute(report, output, "majority", "true");
-				XMLUtils.addAttribute(report, output, "fileName", fileName);
-				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			} else {
 				fileName = "diff" + String.valueOf(i);
 				content = DiffUtils.getFormattedDiffs(majorityTree,
 						tree.getTree());
 				XMLUtils.addAttribute(report, output, "majority", "false");
-				XMLUtils.addAttribute(report, output, "fileName", fileName);
-				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			}
+			XMLUtils.addAttribute(report, output, "fileName", fileName);
+			Path filePath = Paths.get(folderPath, fileName);
+			IOUtils.saveFile(filePath.toString(), content);
 		}
 
 	}

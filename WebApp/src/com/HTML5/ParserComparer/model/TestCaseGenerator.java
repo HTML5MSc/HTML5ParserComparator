@@ -1,6 +1,7 @@
 package com.HTML5.ParserComparer.model;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,14 +32,19 @@ public class TestCaseGenerator {
 			FormatOptions formatOptions) {
 
 		testCase = new TestCase();
-		String xPathExpression = "/report/test[@name=\"" + name + "\"]";
+		String xPathExpression;
+		if (name == null)
+			xPathExpression = "/report/test[1]";
+		else
+			xPathExpression = "/report/test[@name=\"" + name + "\"]";
+
 		Document document = null;
 		Node testNode = null;
 		try {
 			document = XMLUtils.readXMLFromFile(filePath);
 			testNode = (Node) XMLUtils.executeXPath(document, xPathExpression,
 					XPathConstants.NODE);
-			getTestCaseData(testNode, name);
+			getTestCaseData(testNode);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,8 +67,9 @@ public class TestCaseGenerator {
 			TestCase.TestOutput testOutput = testCase.new TestOutput();
 			testOutput.setParsers(getParserData(outputNode));
 
-			String fileName = name + "\\"
-					+ XMLUtils.getAttributeValue(outputNode, "fileName");
+			String fileName = Paths.get(testCase.getName(),
+					XMLUtils.getAttributeValue(outputNode, "fileName"))
+					.toString();
 			try {
 				String tree = IOUtils.readFile(fileName);
 				if (isMajority) {
@@ -89,14 +96,14 @@ public class TestCaseGenerator {
 		return testCase;
 	}
 
-	private static void getTestCaseData(Node testNode, String name)
-			throws IOException {
+	private static void getTestCaseData(Node testNode) throws IOException {
+		String name = XMLUtils.getAttributeValue(testNode, "name");
 		String numberOfTrees = XMLUtils.getAttributeValue(testNode,
 				"numberOfTrees");
 		testCase.setNumberOfTrees(Integer.parseInt(numberOfTrees));
 		testCase.setName(name);
 
-		String fileName = name + "\\input";
+		String fileName = Paths.get(name, "input").toString();
 		String tree = IOUtils.readFile(fileName);
 		testCase.setInput(tree);
 

@@ -2,10 +2,10 @@ package com.html5tools.parserComparison;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.xml.sax.SAXException;
 
@@ -30,47 +30,45 @@ public class Comparator {
 	 */
 	public static void main(String[] args) throws Exception {
 
+		if (args.length != 2)
+			throw new Exception(
+					"Missing argument. Argument must be the path to a directory and type of comparison");
+
 		Comparator comparator = new Comparator();
-		comparator.run(args);
+		if (args[1].equals("s"))
+			comparator.runSingle(args[0]);
+		else if (args[1].equals("m"))
+			comparator.runMulti(args[0]);
 
 	}
 
-	public void run(String testName, String reportFileName,
-			Map<String, String> outputTrees) {
-
-	}
-
-	public void run(String[] args) throws Exception {
+	public void runMulti(String path) throws Exception {
 
 		Boolean singleReport = true;
-
-		if (args.length != 1)
-			throw new Exception(
-					"Missing argument. Argument must be the path to a directory.");
-
-		String path = args[0];
+		//path = "A:\\GitHub\\HTML5ParserComparator\\Reports";
 
 		if (!IOUtils.directoryExists(path))
 			throw new Exception("Could not find the directory");
 
-		String reportFileName = path + "\\" + "report.xml";
+		String reportFileName = Paths.get(path, "report.xml").toString();
 
-		for (String folderName : IOUtils.listFoldersInFolder(path, false)) {
-			folderName = path + "\\" + folderName;
-			String testName = folderName;
+		for (String folderName : IOUtils.listFoldersInFolder(path, true)) {
+			String testName = folderName; //.replace(path, "");
 			List<OutputTree> trees = new ArrayList<OutputTree>();
 			List<String> successfulParsers;
 			parserNames = new ArrayList<String>();
 
 			for (String fileName : IOUtils.listFilesInFolder(folderName, false)) {
+				String outputName = fileName.substring(fileName
+						.lastIndexOf("\\") + 1);
 				if (fileName.contains("majority") || fileName.contains("diff")
 						|| fileName.contains("input"))
 					continue;
 
-				parserNames.add(fileName);
-				String tree = IOUtils.readFile(folderName + "\\" + fileName);
-				trees.add(new OutputTree(tree, fileName));
-				IOUtils.deleteFile(folderName + "\\" + fileName);
+				parserNames.add(outputName);
+				String tree = IOUtils.readFile(fileName);
+				trees.add(new OutputTree(tree, outputName));
+				IOUtils.deleteFile(fileName);
 			}
 			if (parserNames.isEmpty())
 				continue;
@@ -81,6 +79,34 @@ public class Comparator {
 			saveToReport(reportFileName, testName, trees, successfulParsers,
 					singleReport, folderName);
 		}
+	}
+
+	public void runSingle(String path) throws IOException {
+		//path = "A:\\GitHub\\HTML5ParserComparator\\Reports\\test1";
+		String reportFileName = Paths.get(path, "report.xml").toString();
+		List<OutputTree> trees = new ArrayList<OutputTree>();
+		List<String> successfulParsers;
+		parserNames = new ArrayList<String>();
+
+		for (String fileName : IOUtils.listFilesInFolder(path, false)) {
+			String outputName = fileName
+					.substring(fileName.lastIndexOf("\\") + 1);
+			if (fileName.contains("input"))
+				continue;
+
+			parserNames.add(outputName);
+			String tree = IOUtils.readFile(fileName);
+			trees.add(new OutputTree(tree, outputName));
+			IOUtils.deleteFile(fileName);
+		}
+		if (parserNames.isEmpty())
+			return;
+
+		trees = groupByEquality(trees);
+		successfulParsers = getParsersInMajority(trees);
+
+		saveToReport(reportFileName, path, trees, successfulParsers, true,
+				path);
 	}
 
 	private List<String> getParsersInMajority(List<OutputTree> trees) {

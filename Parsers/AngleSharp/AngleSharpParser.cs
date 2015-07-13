@@ -72,7 +72,7 @@ namespace AngleSharpParser
             String text = null;
             try
             {
-                text = System.IO.File.ReadAllText(path);
+                text = System.IO.File.ReadAllText(path, Encoding.UTF8);
             }
             catch (Exception e)
             {
