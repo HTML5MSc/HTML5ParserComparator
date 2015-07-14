@@ -91,11 +91,18 @@ public class SingleReport extends Report {
 
 			Node output = XMLUtils.addNode(report, test, "output");
 
-			Node parsers = XMLUtils.addNode(report, output, "parsers");
+			// Node parsers = XMLUtils.addNode(report, output, "parsers");
+			// for (String parserName : tree.getParsers()) {
+			// Node parser = XMLUtils.addNode(report, parsers, "parser");
+			// XMLUtils.addAttribute(report, parser, "name", parserName);
+			// }
+
+			String parsers = "";
 			for (String parserName : tree.getParsers()) {
-				Node parser = XMLUtils.addNode(report, parsers, "parser");
-				XMLUtils.addAttribute(report, parser, "name", parserName);
+				parsers = parsers.concat(parserName).concat("|");
 			}
+			XMLUtils.addAttribute(report, output, "parsers",
+					parsers.substring(0, parsers.length() - 1));
 
 			String fileName;
 			String content;
@@ -112,7 +119,7 @@ public class SingleReport extends Report {
 						tree.getTree());
 				XMLUtils.addAttribute(report, output, "majority", "false");
 			}
-			XMLUtils.addAttribute(report, output, "fileName", fileName);
+			XMLUtils.addAttribute(report, output, "name", fileName);
 			Path filePath = Paths.get(folderPath, fileName);
 			IOUtils.saveFile(filePath.toString(), content);
 		}

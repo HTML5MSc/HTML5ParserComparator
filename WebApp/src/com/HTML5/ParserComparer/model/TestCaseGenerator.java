@@ -8,7 +8,6 @@ import java.util.List;
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -68,8 +67,7 @@ public class TestCaseGenerator {
 			testOutput.setParsers(getParserData(outputNode));
 
 			String fileName = Paths.get(testCase.getName(),
-					XMLUtils.getAttributeValue(outputNode, "fileName"))
-					.toString();
+					XMLUtils.getAttributeValue(outputNode, "name")).toString();
 			try {
 				String tree = IOUtils.readFile(fileName);
 				if (isMajority) {
@@ -110,16 +108,12 @@ public class TestCaseGenerator {
 	}
 
 	private static ArrayList<String> getParserData(Node outputNode) {
-		ArrayList<String> parsers = new ArrayList<String>();
-		Element parsersNode = XMLUtils.getFirstElementByTagName(outputNode,
-				"parsers");
-
-		for (Element parser : XMLUtils.getElementsByTagName(parsersNode,
-				"parser")) {
-			String parserName = XMLUtils.getAttributeValue(parser, "name");
-			parsers.add(parserName);
+		ArrayList<String> parserList = new ArrayList<String>();
+		String parsers = XMLUtils.getAttributeValue(outputNode, "parsers");
+		for (String parser : parsers.split("\\|")) {
+			parserList.add(parser);
 		}
-		return parsers;
+		return parserList;
 	}
 
 	private static String getFormattedTree(String majorityTree,

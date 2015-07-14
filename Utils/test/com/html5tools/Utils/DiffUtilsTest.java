@@ -127,14 +127,8 @@ public class DiffUtilsTest {
 		IOUtils.listFoldersInFolder2(path);
 		String expected = "best strings";
 		String base = IOUtils.readFile(path + "majority");
-		String diff1 = IOUtils.readFile(path + "diff1");
-		String diff2 = IOUtils.readFile(path + "diff2");
-		String diff3 = IOUtils.readFile(path + "diff3");
-		String diff4 = IOUtils.readFile(path + "diff4");
-		String reconstructed1 = DiffUtils.getOriginalFromDiffs(base, diff1);
-		String reconstructed2 = DiffUtils.getOriginalFromDiffs(base, diff2);
-		String reconstructed3 = DiffUtils.getOriginalFromDiffs(base, diff3);
-		String reconstructed4 = DiffUtils.getOriginalFromDiffs(base, diff4);
+		String diff1 = IOUtils.readFile(path + "diff1");		
+		String reconstructed1 = DiffUtils.getOriginalFromDiffs(base, diff1);		
 
 		assertEquals("Incorrect string", expected, reconstructed1);
 	}
