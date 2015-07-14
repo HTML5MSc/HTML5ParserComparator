@@ -2,12 +2,16 @@ package com.html5tools.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +44,7 @@ public class IOUtils {
 
 		File folder = new File(path);
 		for (final File fileEntry : folder.listFiles()) {
-			String fileName = fileEntry.getName();
+			String fileName = fileEntry.getAbsolutePath();
 			if (fileEntry.isDirectory()) {
 				filesInFolder.add(fileName);
 				if (recursive)
@@ -51,6 +55,25 @@ public class IOUtils {
 		return filesInFolder;
 	}
 
+	public static List<String> listFoldersInFolder2(String path) {
+		List<String> filesInFolder = new ArrayList<String>();
+		// Path reportFileNameP = Paths.get(path,"report.xml");
+		Path pathP = Paths.get(path);
+
+		try {
+			DirectoryStream<Path> rootStream = Files.newDirectoryStream(pathP);
+			for (Path folderName : rootStream) {
+				filesInFolder.add(folderName.getFileName().toString());
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return filesInFolder;
+	}
+
 	public static List<String> listFilesInFolder(String path, boolean recursive) {
 		List<String> filesInFolder = new ArrayList<String>();
 		if (path == null)
@@ -58,10 +81,10 @@ public class IOUtils {
 
 		File folder = new File(path);
 		for (final File fileEntry : folder.listFiles()) {
-			String fileName = fileEntry.getName();
+			String fileName = fileEntry.getAbsolutePath();
 			if (fileEntry.isDirectory() && recursive) {
 				filesInFolder.addAll(listFilesInFolder(fileName, recursive));
-			} else {
+			} else if (!fileEntry.isDirectory()) {
 				filesInFolder.add(fileName);
 			}
 		}
@@ -89,7 +112,8 @@ public class IOUtils {
 	public static String readFile(String path) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = null;
-		br = new BufferedReader(new FileReader(path));
+		br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(path), "UTF-8"));
 
 		String line;
 		if ((line = br.readLine()) != null)

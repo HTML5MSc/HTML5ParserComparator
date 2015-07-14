@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,11 +91,18 @@ public class SingleReport extends Report {
 
 			Node output = XMLUtils.addNode(report, test, "output");
 
-			Node parsers = XMLUtils.addNode(report, output, "parsers");
+			// Node parsers = XMLUtils.addNode(report, output, "parsers");
+			// for (String parserName : tree.getParsers()) {
+			// Node parser = XMLUtils.addNode(report, parsers, "parser");
+			// XMLUtils.addAttribute(report, parser, "name", parserName);
+			// }
+
+			String parsers = "";
 			for (String parserName : tree.getParsers()) {
-				Node parser = XMLUtils.addNode(report, parsers, "parser");
-				XMLUtils.addAttribute(report, parser, "name", parserName);
+				parsers = parsers.concat(parserName).concat("|");
 			}
+			XMLUtils.addAttribute(report, output, "parsers",
+					parsers.substring(0, parsers.length() - 1));
 
 			String fileName;
 			String content;
@@ -104,16 +113,15 @@ public class SingleReport extends Report {
 				fileName = "majority";
 				content = majorityTree;
 				XMLUtils.addAttribute(report, output, "majority", "true");
-				XMLUtils.addAttribute(report, output, "fileName", fileName);
-				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			} else {
 				fileName = "diff" + String.valueOf(i);
 				content = DiffUtils.getFormattedDiffs(majorityTree,
 						tree.getTree());
 				XMLUtils.addAttribute(report, output, "majority", "false");
-				XMLUtils.addAttribute(report, output, "fileName", fileName);
-				IOUtils.saveFile(folderPath + "\\" + fileName, content);
 			}
+			XMLUtils.addAttribute(report, output, "name", fileName);
+			Path filePath = Paths.get(folderPath, fileName);
+			IOUtils.saveFile(filePath.toString(), content);
 		}
 
 	}

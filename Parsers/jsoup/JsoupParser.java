@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -69,7 +70,8 @@ public class JsoupParser {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader br = null;
 		try {
-			br = new BufferedReader(new FileReader(path));
+			br = new BufferedReader(new InputStreamReader(
+				new FileInputStream(path), "UTF-8"));
 			String line;
 			if((line = br.readLine()) != null)
 				sb.append(line);

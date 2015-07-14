@@ -1,13 +1,13 @@
 package com.HTML5.ParserComparer.model;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -31,14 +31,19 @@ public class TestCaseGenerator {
 			FormatOptions formatOptions) {
 
 		testCase = new TestCase();
-		String xPathExpression = "/report/test[@name=\"" + name + "\"]";
+		String xPathExpression;
+		if (name == null)
+			xPathExpression = "/report/test[1]";
+		else
+			xPathExpression = "/report/test[@name=\"" + name + "\"]";
+
 		Document document = null;
 		Node testNode = null;
 		try {
 			document = XMLUtils.readXMLFromFile(filePath);
 			testNode = (Node) XMLUtils.executeXPath(document, xPathExpression,
 					XPathConstants.NODE);
-			getTestCaseData(testNode, name);
+			getTestCaseData(testNode);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,8 +66,8 @@ public class TestCaseGenerator {
 			TestCase.TestOutput testOutput = testCase.new TestOutput();
 			testOutput.setParsers(getParserData(outputNode));
 
-			String fileName = name + "\\"
-					+ XMLUtils.getAttributeValue(outputNode, "fileName");
+			String fileName = Paths.get(testCase.getName(),
+					XMLUtils.getAttributeValue(outputNode, "name")).toString();
 			try {
 				String tree = IOUtils.readFile(fileName);
 				if (isMajority) {
@@ -89,30 +94,26 @@ public class TestCaseGenerator {
 		return testCase;
 	}
 
-	private static void getTestCaseData(Node testNode, String name)
-			throws IOException {
+	private static void getTestCaseData(Node testNode) throws IOException {
+		String name = XMLUtils.getAttributeValue(testNode, "name");
 		String numberOfTrees = XMLUtils.getAttributeValue(testNode,
 				"numberOfTrees");
 		testCase.setNumberOfTrees(Integer.parseInt(numberOfTrees));
 		testCase.setName(name);
 
-		String fileName = name + "\\input";
+		String fileName = Paths.get(name, "input").toString();
 		String tree = IOUtils.readFile(fileName);
 		testCase.setInput(tree);
 
 	}
 
 	private static ArrayList<String> getParserData(Node outputNode) {
-		ArrayList<String> parsers = new ArrayList<String>();
-		Element parsersNode = XMLUtils.getFirstElementByTagName(outputNode,
-				"parsers");
-
-		for (Element parser : XMLUtils.getElementsByTagName(parsersNode,
-				"parser")) {
-			String parserName = XMLUtils.getAttributeValue(parser, "name");
-			parsers.add(parserName);
+		ArrayList<String> parserList = new ArrayList<String>();
+		String parsers = XMLUtils.getAttributeValue(outputNode, "parsers");
+		for (String parser : parsers.split("\\|")) {
+			parserList.add(parser);
 		}
-		return parsers;
+		return parserList;
 	}
 
 	private static String getFormattedTree(String majorityTree,

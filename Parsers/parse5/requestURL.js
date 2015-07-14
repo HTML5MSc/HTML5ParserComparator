@@ -7,7 +7,7 @@
 	  encoding: null,
 	}, function(error, response, body) {
 		var bodyWithCorrectEncoding = iconv.decode(body, 'utf8');
-		fs.writeFile('response.txt', bodyWithCorrectEncoding, function(err){
+		fs.writeFile('response', bodyWithCorrectEncoding, function(err){
 			if (err) throw err;
 		});
 	});

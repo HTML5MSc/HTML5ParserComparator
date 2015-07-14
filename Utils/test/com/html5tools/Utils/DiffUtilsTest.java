@@ -2,6 +2,7 @@ package com.html5tools.Utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -118,5 +119,17 @@ public class DiffUtilsTest {
 		String reconstructed = DiffUtils.getOriginalFromDiffs(base, diffs);
 
 		assertEquals("Incorrect string", expected, reconstructed);
+	}
+
+	@Test
+	public void testGetOriginalFromFile() throws IOException {
+		String path = "A:\\GitHub\\HTML5ParserComparator\\Reports\\test2\\";
+		IOUtils.listFoldersInFolder2(path);
+		String expected = "best strings";
+		String base = IOUtils.readFile(path + "majority");
+		String diff1 = IOUtils.readFile(path + "diff1");		
+		String reconstructed1 = DiffUtils.getOriginalFromDiffs(base, diff1);		
+
+		assertEquals("Incorrect string", expected, reconstructed1);
 	}
 }

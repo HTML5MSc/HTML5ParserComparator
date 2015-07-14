@@ -11,10 +11,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import org.xml.sax.SAXException;
+import javax.xml.xpath.XPathConstants;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.html5tools.Utils.DiffUtils;
+import com.html5tools.Utils.IOUtils;
+import com.html5tools.Utils.XMLUtils;
 import com.html5tools.parserComparison.report.Report;
 import com.html5tools.parserComparison.report.impl.PartitionedReport;
 import com.html5tools.parserComparison.report.impl.SingleReport;
@@ -35,98 +42,141 @@ public class Comparator {
 	 */
 	public static void main(String[] args) throws Exception {
 
+		if (args.length == 0)
+			throw new Exception(
+					"Missing argument. Argument must be the path to a directory and type of comparison");
 		Comparator comparator = new Comparator();
-		comparator.run(args);
-
+		String path = args[0];
+		// path = "A:\\GitHub\\HTML5ParserComparator\\Reports\\adoption01";
+		if (args.length > 1 && args[1].equals("s"))
+			comparator.runSingle(path);
+		else if (args.length > 1 && args[1].equals("u")) {
+			comparator.restoreOutputsFromDiffs(path);
+			comparator.runMulti(path);
+		} else
+			// if (args[1].equals("m"))
+			comparator.runMulti(path);
 	}
 
-	public void run(String testName, String reportFileName,
-			Map<String, String> outputTrees) {
-
-	}
-
-	public void run(String[] args) throws Exception {
+	public void runMulti(String path) throws Exception {
 
 		Boolean singleReport = true;
-
-		if (args.length != 1)
-			throw new Exception(
-					"Missing argument. Argument must be the path to a directory.");
-
-		String path = args[0];
 
 		if (Files.notExists(Paths.get(path)))
 			throw new Exception("Could not find the directory");
 
-		Path reportFileNameP = Paths.get(path,"report.xml");
+		Path reportFileNameP = Paths.get(path, "report.xml");
 		Path pathP = Paths.get(path);
-		
+
 		try (DirectoryStream<Path> rootStream = Files.newDirectoryStream(pathP)) {
-		    for (Path folderName: rootStream) {
-		        String testName = folderName.getFileName().toString();
-		        
-		        List<OutputTree> trees = new ArrayList<OutputTree>();
+			for (Path folderName : rootStream) {
+				// String testName = folderName.getFileName().toString();
+
+				List<OutputTree> trees = new ArrayList<OutputTree>();
 				List<String> successfulParsers;
 				parserNames = new ArrayList<String>();
-				
-				if(!Files.isDirectory(folderName))
+
+				if (!Files.isDirectory(folderName))
 					continue;
-				
-				try (DirectoryStream<Path> treeFolderStream = Files.newDirectoryStream(folderName)) {
-				    for (Path treeFile: treeFolderStream) {
-				        String fileName = treeFile.getFileName().toString();
-				        if (fileName.contains("majority") || fileName.contains("diff")
+
+				try (DirectoryStream<Path> treeFolderStream = Files
+						.newDirectoryStream(folderName)) {
+					for (Path treeFile : treeFolderStream) {
+						String fileName = treeFile.getFileName().toString();
+						if (fileName.contains("majority")
+								|| fileName.contains("diff")
 								|| fileName.contains("input"))
 							continue;
-				        
-				        parserNames.add(fileName);
-						
-						String tree = new String(Files.readAllBytes(treeFile),Charset.forName("UTF-8"));
+
+						parserNames.add(fileName);
+
+						String tree = new String(Files.readAllBytes(treeFile),
+								Charset.forName("UTF-8"));
+						tree = processEndOfLines(tree);
 						trees.add(new OutputTree(tree, fileName));
 						Files.delete(treeFile);
-				    }
+					}
 				} catch (IOException | DirectoryIteratorException e) {
-				    e.printStackTrace();
+					e.printStackTrace();
 				}
-				
+
 				if (parserNames.isEmpty())
 					continue;
 
 				trees = groupByEquality(trees);
 				successfulParsers = getParsersInMajority(trees);
-				saveToReport(reportFileNameP.toAbsolutePath().toString(), testName, trees, successfulParsers,
-						singleReport, folderName.getFileName().toString());
-		    }
+				saveToReport(reportFileNameP.toAbsolutePath().toString(),
+						folderName.toAbsolutePath().toString(), trees,
+						successfulParsers, singleReport, folderName
+								.toAbsolutePath().toString());
+			}
 		} catch (IOException | DirectoryIteratorException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
-		
-//		for (String folderName : IOUtils.listFoldersInFolder(path, false)) {
-//			folderName = path + "\\" + folderName;
-//			String testName = folderName;
-//			List<OutputTree> trees = new ArrayList<OutputTree>();
-//			List<String> successfulParsers;
-//			parserNames = new ArrayList<String>();
-//
-//			for (String fileName : IOUtils.listFilesInFolder(folderName, false)) {
-//				if (fileName.contains("majority") || fileName.contains("diff")
-//						|| fileName.contains("input"))
-//					continue;
-//
-//				parserNames.add(fileName);
-//				String tree = IOUtils.readFile(folderName + "\\" + fileName);
-//				trees.add(new OutputTree(tree, fileName));
-//				IOUtils.deleteFile(folderName + "\\" + fileName);
-//			}
-//			if (parserNames.isEmpty())
-//				continue;
-//
-//			trees = groupByEquality(trees);
-//			successfulParsers = getParsersInMajority(trees);
-//
-//			saveToReport(reportFileName, testName, trees, successfulParsers,
-//					singleReport, folderName);
-//		}
+	}
+
+	public void runSingle(String path) throws IOException {
+
+		String reportFileName = Paths.get(path, "report.xml").toString();
+		List<OutputTree> trees = new ArrayList<OutputTree>();
+		List<String> successfulParsers;
+		parserNames = new ArrayList<String>();
+
+		for (String fileName : IOUtils.listFilesInFolder(path, false)) {
+			String outputName = Paths.get(fileName).getFileName().toString();
+			// fileName.substring(fileName.lastIndexOf("\\") + 1);
+			if (fileName.contains("input"))
+				continue;
+
+			parserNames.add(outputName);
+			String tree = IOUtils.readFile(fileName);
+			trees.add(new OutputTree(tree, outputName));
+			IOUtils.deleteFile(fileName);
+		}
+		if (parserNames.isEmpty())
+			return;
+
+		trees = groupByEquality(trees);
+		successfulParsers = getParsersInMajority(trees);
+
+		saveToReport(reportFileName, path, trees, successfulParsers, true, path);
+	}
+
+	public void restoreOutputsFromDiffs(String path) throws Exception {
+		String reportFileName = Paths.get(path, "report.xml").toString();
+		Document document = XMLUtils.readXMLFromFile(reportFileName);
+		String xPathExpression = "/report/test";
+		NodeList testNodes = (NodeList) XMLUtils.executeXPath(document,
+				xPathExpression, XPathConstants.NODESET);
+		for (int i = 0; i < testNodes.getLength(); i++) {
+			Node testNode = testNodes.item(i);
+			String testName = XMLUtils.getAttributeValue(testNode, "name");
+			for (Element output : XMLUtils.getElementsByTagName(testNode,
+					"output")) {
+				String parsers = XMLUtils.getAttributeValue(output, "parsers");
+				boolean majority = XMLUtils.getAttributeValue(output,
+						"majority").equals("true");
+				String majorityTree = IOUtils.readFile(Paths.get(testName,
+						"majority").toString());
+				for (String parser : parsers.split("\\|")) {
+					String originalTreeFile = Paths.get(testName, parser)
+							.toString();
+					String content;
+					if (majority)
+						content = majorityTree;
+					else {
+						String diffName = XMLUtils.getAttributeValue(output,
+								"name");
+						content = IOUtils.readFile(Paths
+								.get(testName, diffName).toString());
+						content = DiffUtils.getOriginalFromDiffs(majorityTree,
+								content);
+					}
+					IOUtils.saveFile(originalTreeFile, content);
+				}
+			}
+		}
+		IOUtils.deleteFile(reportFileName);
 	}
 
 	private List<String> getParsersInMajority(List<OutputTree> trees) {
@@ -158,10 +208,10 @@ public class Comparator {
 
 		// is majority if more than the half of total trees
 		// ACCORDING to boyer-moore majority vote algorithm
-		double halfNoOfPasers = (parserNames.size() - parserWithErrors) / 2;
-		if (majority.size() <= halfNoOfPasers) {
-			return new ArrayList<String>();// No parser passed
-		}
+		// double halfNoOfPasers = (parserNames.size() - parserWithErrors) / 2;
+		// if (majority.size() <= halfNoOfPasers) {
+		// return new ArrayList<String>();// No parser passed
+		// }
 
 		return majority;
 	}
@@ -179,7 +229,7 @@ public class Comparator {
 				report = new SingleReport(parserNames);
 			else
 				report = new PartitionedReport(parserNames);
-		} catch (SAXException | IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return;// Do not continue
 		}
@@ -204,4 +254,13 @@ public class Comparator {
 		return outputs;
 	}
 
+	private String processEndOfLines(String tree) {
+		tree = tree.replace("\r\n", "\n").replace("\n",
+				System.getProperty("line.separator"));
+		if (tree.endsWith(System.getProperty("line.separator")))
+			tree = tree.substring(0,
+					tree.length()
+							- System.getProperty("line.separator").length());
+		return tree;
+	}
 }
