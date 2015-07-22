@@ -52,7 +52,7 @@
 				id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
 					<li><a href="inputform.html">Multi-Parse tool</a></li>
-					<li><a href="tracer.html">Tracer tool</a></li>
+					<li><a href="traceform.html">Tracer tool</a></li>
 					<li><a href="#">About</a></li>
 					<li><a href="#">Contact</a></li>
 				</ul>

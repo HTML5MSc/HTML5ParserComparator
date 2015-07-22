@@ -2,8 +2,8 @@ package com.HTML5.ParserComparer.model;
 
 public class ParserInput {
 
-	String type;
-	String value;
+	private String type;
+	private String value;
 
 	public ParserInput() {
 		super();

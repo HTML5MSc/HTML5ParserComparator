@@ -4,8 +4,7 @@
 
 <html>
 <head>
-<title>Spring MVC Tutorial by Crunchify - Hello World Spring MVC
-	Example</title>
+<title>Report details</title>
 </head>
 <body>
 
@@ -14,17 +13,15 @@
 	</h1>
 
 	<dl class="dl-horizontal">
-		<dt class="text-uppercase">Number of tests</dt>
+		<dt>Number of tests</dt>
 		<dd>${report.numberOfTests}</dd>
-		<dt class="text-uppercase">Equals</dt>
+		<dt>Equals</dt>
 		<dd>${report.testsEqual}</dd>
-		<dt class="text-uppercase">Different</dt>
+		<dt>Different</dt>
 		<dd>${report.testsDifferent}</dd>
-		<dt class="text-uppercase">Date</dt>
+		<dt>Date</dt>
 		<dd>${report.testDate}</dd>
 	</dl>
-
-
 
 	<c:if test="${not empty report.testResults}">
 		<h2>

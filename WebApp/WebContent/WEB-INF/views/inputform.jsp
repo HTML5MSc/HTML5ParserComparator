@@ -34,7 +34,7 @@
 		</div>
 		<div class="form-group">
 			<div class="col-sm-offset-2 col-sm-10">
-				<button type="submit" class="btn">Parse and
+				<button type="submit" class="btn btn-primary">Parse and
 					compare!!!</button>
 			</div>
 		</div>
@@ -57,8 +57,7 @@
 				$('#value').attr('rows','12');
 				
 			}
-		});
-		
+		});		
 	});
 </script> 
 </content>

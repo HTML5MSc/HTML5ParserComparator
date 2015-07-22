@@ -40,6 +40,26 @@
     	<filter-name>sitemesh</filter-name>
     	<url-pattern>/*</url-pattern>
     </filter-mapping>
-       
+     
+	<jsp-config>
+	    <jsp-property-group>
+	        <url-pattern>*.jsp</url-pattern>
+	        <page-encoding>UTF-8</page-encoding>
+	    </jsp-property-group>
+	</jsp-config>   
+	
+	<filter>
+		<filter-name>CharsetFilter</filter-name>
+	    <filter-class>com.HTML5.ParserComparer.controller.CharsetFilter</filter-class>
+	    <init-param>
+	       	<param-name>requestEncoding</param-name>
+	       	<param-value>UTF-8</param-value>
+	    </init-param>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>CharsetFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
  
 </web-app>

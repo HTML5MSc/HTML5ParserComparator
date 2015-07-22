@@ -9,12 +9,13 @@ public class FormattingUtils {
 	public static final String END_CODE_INS = "EndCodeIns";
 	public static final String START_CODE_DEL = "StartCodeDel";
 	public static final String END_CODE_DEL = "EndCodeDel";
-	
+
 	private static final String SPAN_INS = "<span class=\"line_ins\">";
 	private static final String SPAN_DEL = "<span class=\"line_del\">";
 	private static final String SPAN_CLOSE = "</span>";
-	
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	private static final String LINE_SEPARATOR = System
+			.getProperty("line.separator");
 
 	public static String formatTreeLines(String tree) {
 		if (tree == null || tree.equals(""))
@@ -107,7 +108,13 @@ public class FormattingUtils {
 		List<String> indexes = new ArrayList<String>();
 		for (int index = word.indexOf(startValue); index != -1; index = word
 				.indexOf(startValue, index + 1)) {
-			int startIndex = word.substring(0, index).lastIndexOf(LINE_SEPARATOR + "| ");
+			int startIndex = word.substring(0, index).lastIndexOf(
+					LINE_SEPARATOR + "| ");
+			if (startIndex == -1)
+				startIndex = word.substring(0, index).lastIndexOf("| ");
+			if (startIndex == -1)
+				continue;
+
 			int endIndex = word.indexOf(endValue, index);
 			if (endIndex != -1) {
 				endIndex += appendEndValue ? endValue.length() : 0;
@@ -116,21 +123,22 @@ public class FormattingUtils {
 		}
 		return indexes;
 	}
-	
+
 	public static List<String> getSubStringsOf(String word, String startValue) {
 		List<String> indexes = new ArrayList<String>();
 		for (int index = word.indexOf(startValue); index != -1; index = word
 				.indexOf(startValue, index + 1)) {
-			int startIndex = word.substring(0, index).lastIndexOf(LINE_SEPARATOR + "| ");
+			int startIndex = word.substring(0, index).lastIndexOf(
+					LINE_SEPARATOR + "| ");
 			String endValue = word.substring(startIndex, index).concat("&lt;");
 			int endIndex = word.indexOf(endValue, index);
-			if (endIndex != -1) {				
+			if (endIndex != -1) {
 				indexes.add(word.substring(startIndex, endIndex));
 			}
 		}
 		return indexes;
 	}
-	
+
 	public static String escapeStringToHTML(String string) {
 		return string.replace("&", "&amp;").replace("<", "&lt;")
 				.replace(">", "&gt;");
@@ -144,12 +152,21 @@ public class FormattingUtils {
 				.replace(END_CODE_DEL, "</del>");
 		return string;
 	}
-	
+
 	public static String escapeInsTag(String string) {
 		return START_CODE_INS + string + END_CODE_INS;
 	}
-	
+
 	public static String escapeDelTag(String string) {
 		return START_CODE_DEL + string + END_CODE_DEL;
+	}
+
+	public static String stringArrayToString(String[] values, String separator) {
+		StringBuilder builder = new StringBuilder();
+		for (String s : values) {
+			builder.append(s);
+			builder.append(separator);
+		}
+		return builder.substring(0, builder.length() - separator.length());
 	}
 }
