@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -80,9 +81,19 @@ public class XMLUtils {
 	}
 
 	public static void addAttribute(Document document, Node node,
+			String attName, boolean attValue) {
+		addAttribute(document, node, attName, attValue ? "true" : "false");
+	}
+
+	public static void addAttribute(Document document, Node node,
+			String attName, int attValue) {
+		addAttribute(document, node, attName, Integer.toString(attValue));
+	}
+
+	public static void addAttribute(Document document, Node node,
 			String attName, String attValue) {
 		Attr attr = document.createAttribute(attName);
-		attr.setNodeValue(attValue);
+		attr.setNodeValue(removeXMLInvalidChars(attValue));
 		node.getAttributes().setNamedItem(attr);
 	}
 
@@ -98,9 +109,24 @@ public class XMLUtils {
 	}
 
 	public static void incrementAttributeValue(Node node, String attName) {
+		incrementAttributeValue(node, attName, 1);
+	}
+
+	public static void incrementAttributeValue(Node node, String attName,
+			String attValue) {
+		try {
+			incrementAttributeValue(node, attName, Integer.decode(attValue));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public static void incrementAttributeValue(Node node, String attName,
+			int value) {
 		Node attr = node.getAttributes().getNamedItem(attName);
-		String attValue = String
-				.valueOf(Integer.parseInt(attr.getNodeValue()) + 1);
+		String attValue = String.valueOf(Integer.parseInt(attr.getNodeValue())
+				+ value);
 		attr.setNodeValue(attValue);
 	}
 
@@ -121,6 +147,16 @@ public class XMLUtils {
 		ArrayList<Element> elements = getElementsByTagName(node, tagName);
 		if (!elements.isEmpty())
 			return elements.get(0);
+		return null;
+	}
+
+	public static Element getElementByAttributeValue(List<Element> elements,
+			String attName, String attValue) {
+		for (Element e : elements) {
+			String s = e.getAttribute(attName);
+			if (attValue.equals(s))
+				return e;
+		}
 		return null;
 	}
 
@@ -161,5 +197,12 @@ public class XMLUtils {
 			e.printStackTrace();
 		}
 		// return writer.toString();
+	}
+
+	public static String removeXMLInvalidChars(String input) {
+		String xml10pattern = "[^" + "\u0009\r\n" + "\u0020-\uD7FF"
+				+ "\uE000-\uFFFD" + "\ud800\udc00-\udbff\udfff" + "]";
+
+		return input.replaceAll(xml10pattern, "");
 	}
 }
