@@ -17,7 +17,8 @@ switch(process.argv[2]){
 		}
 		fs.readFile(process.argv[3], 'utf8', function (err,data){			
 			if (err) throw err;
-			parseInput(data.replace(/\n$/, ''));
+			//parseInput(data.replace(/\n$/, ''));
+			parseInput(data);
 		});
 		break;
 
@@ -157,20 +158,32 @@ function serializeToTestDataFormat(rootNode, treeAdapter) {
                 str += '<' + getElementSerializedNamespaceURI(node) + tn + '>\n';
 
                 var childrenIndent = indent + 2,
-                    serializedAttrs = [];
+                    serializedAttrs = {};
 
                 treeAdapter.getAttrList(node).forEach(function (attr) {
                     var attrStr = getSerializedTreeIndent(childrenIndent);
+					var prefix = '';
 
                     if (attr.prefix)
-                        attrStr += attr.prefix + ' ';
+						prefix = attr.prefix + ' ';
+                        //attrStr += attr.prefix + ' ';
+					
+                    attrStr += prefix + attr.name + '="' + attr.value + '"\n';
+					serializedAttrs[prefix + attr.name	] = attrStr;  
+					
 
-                    attrStr += attr.name + '="' + attr.value + '"\n';
+                    //serializedAttrs.push(attr.name,attrStr);
 
-                    serializedAttrs.push(attrStr);
                 });
 
-                str += serializedAttrs.sort().join('');
+                //str += serializedAttrs.sort().join('');
+
+				var mapKeys = Object.keys(serializedAttrs);
+				mapKeys.sort();
+
+				mapKeys.forEach(function(key) {
+					str += serializedAttrs[key];
+				});
 
                 if (tn === 'template' && treeAdapter.getNamespaceURI(node) === 'http://www.w3.org/1999/xhtml') {
                     str += getSerializedTreeIndent(childrenIndent) + 'content\n';
