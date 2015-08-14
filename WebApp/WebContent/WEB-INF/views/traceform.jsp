@@ -9,7 +9,7 @@
 </head>
 <body>	
 	<h1 class="page-header">
-		<small>Tracer details</small>
+		<small>Tracer</small>
 	</h1>	
 	<form:form action="traceform.html" role="form" commandName="tracerInput"
 		cssClass="checkboxForm">	
@@ -92,7 +92,7 @@
 						<div style="display:inline-block" class="tracer_ParseError"><b>Parse errors</b></div>
 						<div style="display:inline-block" class="tracer_TokenizerState"><b>Tokenizer states</b></div>	
 					</div> 
-					<c:set var="maxEventsToDisplay" value="300"/>
+					<c:set var="maxEventsToDisplay" value="${maxTracerEvents}"/>
 					<c:if test="${fn:length(tracer.parseEvents) > maxEventsToDisplay}">
 						<div class="alert alert-warning"><strong>Log too large to display</strong>
 						&nbsp;Try making some exclusions to display it.</div></c:if>

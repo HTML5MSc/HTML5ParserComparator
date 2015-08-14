@@ -22,6 +22,7 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 		<property name="reportPath" value="A:/GitHub/HTML5ParserComparator/Reports/" /> 
 		<property name="bashScriptName" value="runner_master2.bat" /> 
 		<property name="bashScriptPath" value="A:/GitHub/HTML5ParserComparator/" /> 
+		<property name="maxTracerEvents" value="300" />
 		
 	</bean>
 </beans>

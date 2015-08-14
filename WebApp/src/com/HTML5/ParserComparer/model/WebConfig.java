@@ -4,6 +4,7 @@ public class WebConfig {
 	String bashScriptName;
 	String bashScriptPath;
 	String reportPath;
+	int maxTracerEvents;
 
 	public String getBashScriptName() {
 		return bashScriptName;
@@ -31,5 +32,13 @@ public class WebConfig {
 	
 	public String getBashScriptFullPath() {
 		return bashScriptPath.concat(bashScriptName);
+	}
+	
+	public int getMaxTracerEvents() {
+		return maxTracerEvents;
+	}
+
+	public void setMaxTracerEvents(int maxTracerEvents) {
+		this.maxTracerEvents = maxTracerEvents;
 	}
 }

@@ -15,7 +15,7 @@
 
 	<c:if test="${not empty test}">
 		<h1 class="page-header">
-			<small>Report details</small>
+			<small>Comparison details</small>
 		</h1>
 		<dl>
 			<dt>Name</dt>

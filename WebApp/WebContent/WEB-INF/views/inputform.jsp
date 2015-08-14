@@ -9,7 +9,7 @@
 <body>
 
 	<h1 class="page-header">
-		<small>Multi-parse tool</small>
+		<small>Multi-parser comparator</small>
 	</h1>
 	<c:if test="${not empty error}">
 		<p class="text-danger">${error}</p>

@@ -123,6 +123,7 @@ public class ReportController {
 		model.addAttribute("output");
 		model.addAttribute("tracer");
 		model.addAttribute("tracerInput", tracerInput);
+		model.addAttribute("maxTracerEvents", webConfig.getMaxTracerEvents());
 
 		return "traceform";
 	}
@@ -203,6 +204,7 @@ public class ReportController {
 		model.addAttribute("algorithms", tracer.getAlgorithms());
 		model.addAttribute("insertionModes", tracer.getInsertionModes());
 		model.addAttribute("tokenizerStates", tracer.getTokenizerStates());
+		model.addAttribute("maxTracerEvents", webConfig.getMaxTracerEvents());
 
 		addElementsDetailsToModel(model);
 
