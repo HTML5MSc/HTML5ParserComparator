@@ -34,3 +34,43 @@ pre del {
 .line_del {
 	background-color: #FFECEC;
 }
+
+.tracer_Algorithm , .tracer_TokenizerState, .tracer_InsertionMode, .tracer_ParseError  {
+	border-radius: 6px 6px 6px 6px;
+	-moz-border-radius: 6px 6px 6px 6px;
+	-webkit-border-radius: 6px 6px 6px 6px;
+	border: 1px solid #666;
+	margin: 4px;
+	padding: 2px 8px;
+}
+
+.tracer_Algorithm {
+	background-color: #D9EDF7;
+}
+
+.tracer_TokenizerState {
+	background-color: #FCF8E3;
+}
+
+.tracer_InsertionMode {
+	background-color: #DFF0D8;
+}
+
+.tracer_ParseError {
+	background-color: #F2DEDE;
+}
+
+.checkboxForm span {
+    display: block;
+//    color: #999;    
+}
+
+.checkboxForm span label {
+	font-weight: normal;
+	margin: 4px;
+}
+
+dt, dd {	
+	padding-top: 16px;
+	white-space: normal !important;
+}

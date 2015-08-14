@@ -32,7 +32,7 @@ public class TestCaseGenerator {
 
 		testCase = new TestCase();
 		String xPathExpression;
-		if (name == null)
+		if (name == null || name == "")
 			xPathExpression = "/report/test[1]";
 		else
 			xPathExpression = "/report/test[@name=\"" + name + "\"]";
