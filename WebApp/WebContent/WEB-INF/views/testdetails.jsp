@@ -98,7 +98,7 @@
 							<c:if test="${i.index == 1}"><c:set var="active" value="active"/></c:if>
 							<c:if test="${i.index > 1}"><c:set var="active" value=""/></c:if>
 						    <li role="output" class="${active}">
-						    <a href="#${tree}" aria-controls="${tree}" role="tab" data-toggle="tab">
+						    <a href="#${tree}" aria-controls="${tree}" role="tab" data-toggle="tab" class="tab">
 						    	<c:forEach var="parser" items="${output.parsers}"
 									varStatus="i">
 									<c:out value="${parser}" />
@@ -106,9 +106,8 @@
 								</c:forEach>
 						    </a></li>
 						</c:if>
-						</c:forEach>
+						</c:forEach>						
 						</ul>
-						
 						<div class="tab-content">
 							<c:forEach var="output" items="${test.outputs}" varStatus="i">
 							<c:if test="${i.isFirst() == false}">
@@ -121,6 +120,13 @@
 									<c:if test="${output.editDistance > 0}">
 										<b>Edit distance:</b>&nbsp;${output.editDistance}
 									</c:if>
+									<div style='float:right; width: 30px;'>
+									<div style="position:fixed;" class="panel panel-info">
+									    <a href="#" id="display2" class="display"><i class="fa fa-arrow-up fa-fw"></i>top</a><br>
+									    <a href="#" id="display1" class="display"><i class="fa fa-backward fa-fw"></i>prev</a><br>
+									    <a href="#" id="display" class="display"><i class="fa fa-forward fa-fw"></i>next</a><br>
+									    <a href="#" id="display2" class="display"><i class="fa fa-arrow-down fa-fw"></i>bottom</a>									    
+									</div></div>
 									<!--?prettify lang=html linenums=true?-->
 									<pre><c:out value="${output.tree}" escapeXml="false" /></pre>
     							</div>
@@ -147,11 +153,62 @@
 	    	prettyPrint();
 		
 		$('[data-toggle="tooltip"]').tooltip(); 
+				
+		$('#tree1').find('span').addClass('current');
 	});
 	
 	$('#cbPrettify').change(function(){
 	    if(this.checked)
 	    	prettyPrint();
+	});
+	
+	$('a.tab').on('click', function(e) {
+        $('span').removeClass('current');
+		var tree = $(this).attr('href');
+		$(tree).find('span').addClass('current');
+	});
+	
+	$('a.display').on('click', function(e) {
+		e.preventDefault();
+		var topOffset = 150;
+	    var t = $(this).text(),
+	    that = $(this);
+
+	    if (t === 'top') {
+	    	$('body').animate({
+	        	scrollTop: $('span.current').parent().offset().top - topOffset    
+	    	});
+	    } else if (t === 'bottom') {
+	    	$('body').animate({
+	        	scrollTop: $('span.current').parent().height() - topOffset    
+	    	});
+	    } else if (t === 'next' && $('.current').next('span').length > 0) {
+	        var $next = $('.current').next('span');
+	        var top = $next.offset().top - topOffset;
+	        
+	        $('.current').removeClass('current');
+	      
+	        $('body').animate({
+	          	scrollTop: top     
+	        }, function () {
+		        $next.addClass('current');
+	        });
+	  	} else if (t === 'prev' && $('.current').prev('span').length > 0) {
+	        var $prev = $('.current').prev('span');
+	        var top = $prev.offset().top - topOffset;
+	        
+	        $('.current').removeClass('current');
+	      
+	        $('body').animate({
+	          	scrollTop: top     
+	        }, function () {
+				$prev.addClass('current');
+	        });
+	  	} else {
+			$('body').animate({
+	        	scrollTop: $('span.current').offset().top - topOffset    
+	    	});
+		}
 	});
 </script> 
 </content>
