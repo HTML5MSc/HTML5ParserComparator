@@ -79,7 +79,7 @@ namespace AngleSharpParser
                                 str += "math ";
                         }
 
-                        str += current.NodeName.ToLower();
+                        str += element.LocalName;
                         str += '>';
                         if (element.Attributes.Count() > 0)
                         {
@@ -89,7 +89,7 @@ namespace AngleSharpParser
                                 String value = att.Value;
 
                                 if (att.NamespaceUri == null)
-                                    key = att.Name;
+                                    key = att.LocalName;
                                 else if (att.NamespaceUri.Equals(XML))
                                     key = "xml " + att.LocalName;
                                 else if (att.NamespaceUri.Equals(XMLNS))
@@ -97,7 +97,7 @@ namespace AngleSharpParser
                                 else if (att.NamespaceUri.Equals(XLink))
                                     key = "xlink " + att.LocalName;
                                 else
-                                    key = att.Name;
+                                    key = att.LocalName;
 
 
                                 str += "\n| " + indent(1 + ancestors + templateAncestors(element, 0)) + key;
